@@ -63,10 +63,16 @@ export function LoginForm() {
         control={control}
         name="rememberMe"
         render={({ field: { onChange, value } }) => (
-          <View style={styles.rememberRow}>
-            <Checkbox checked={value} label="Recordar sesión" onChange={onChange} />
-            <Text style={styles.days}>30 días</Text>
-          </View>
+          <Checkbox
+            checked={value}
+            label={
+              <View style={styles.rememberLabel}>
+                <Text style={styles.rememberText}>Recordar sesión</Text>
+                <Text style={styles.days}>30 días</Text>
+              </View>
+            }
+            onChange={onChange}
+          />
         )}
       />
       <ErrorBanner>{errors.root?.server?.message}</ErrorBanner>
@@ -85,7 +91,16 @@ export function LoginForm() {
 function createStyles(theme: AppTheme) {
   return StyleSheet.create({
     form: { gap: theme.spacing.md },
-    rememberRow: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
+    rememberLabel: {
+      alignItems: 'center',
+      flex: 1,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+    },
+    rememberText: {
+      color: theme.colors.textSecondary,
+      fontSize: theme.typography.size.bodySmall,
+    },
     days: {
       color: theme.colors.textMuted,
       fontSize: theme.typography.size.caption,

@@ -36,8 +36,13 @@ export function Checkbox({ checked, onChange, label, error, accessibilityLabel }
 
 function createStyles(theme: AppTheme) {
   return StyleSheet.create({
-    wrapper: { gap: theme.spacing.xs },
-    row: { alignItems: 'flex-start', flexDirection: 'row', gap: theme.spacing.sm },
+    wrapper: { alignSelf: 'stretch', gap: theme.spacing.xs },
+    row: {
+      alignItems: 'center',
+      alignSelf: 'stretch',
+      flexDirection: 'row',
+      gap: theme.spacing.sm,
+    },
     box: {
       alignItems: 'center',
       borderColor: theme.colors.borderStrong,
@@ -45,11 +50,12 @@ function createStyles(theme: AppTheme) {
       borderWidth: theme.metrics.borderWidth,
       height: theme.spacing.lg,
       justifyContent: 'center',
+      flexShrink: 0,
       width: theme.spacing.lg,
     },
     boxChecked: { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
     boxError: { borderColor: theme.colors.danger },
-    label: { color: theme.colors.textSecondary, flex: 1, fontSize: theme.typography.size.bodySmall },
+    label: { color: theme.colors.textSecondary, flexShrink: 1, fontSize: theme.typography.size.bodySmall },
     error: { color: theme.colors.danger, fontSize: theme.typography.size.bodySmall },
   });
 }
