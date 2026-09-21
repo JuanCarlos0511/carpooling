@@ -1,15 +1,9 @@
 import {
   AuthError,
   type AuthApiErrorResponse,
-  type AuthCredentials,
   type AuthResponse,
-  type InstitutionalVerification,
-  type LoginDto,
   type RegisterCompleteDto,
-  type RegisterDto,
 } from '@/features/auth/types/auth.types';
-import { institutionalService } from './institutional.service';
-import { registrationService } from './registration.service';
 
 const API_ROOT = (process.env.EXPO_PUBLIC_API_URL ?? '').replace(/\/$/, '');
 
@@ -48,57 +42,65 @@ function normalizeResponse(payload: ApiAuthPayload): AuthResponse {
     user: {
       id,
       fullName,
+      email,
       role,
       institutionalEmail: email,
       studentId: readString(user, 'studentId', 'student_id', 'matricula') ?? '',
       campus: readString(user, 'campus') ?? '',
       faculty: readString(user, 'faculty', 'facultad') ?? '',
-      universityId: readString(user, 'universityId', 'university_id') ?? 'api',
+      universityId: readString(user, 'universityId', 'university_id') ?? 'uat',
       institution: asRecord(user.institution) as any ?? null,
     },
   };
 }
 
-async function request(path: string, body: LoginDto | RegisterDto): Promise<AuthResponse> {
-  if (!API_ROOT) throw new AuthError('EXPO_PUBLIC_API_URL no está configurada.', 'SERVER_ERROR');
+export const registrationService = {
+  async registerComplete(data: RegisterCompleteDto): Promise<AuthResponse> {
+    if (!API_ROOT) throw new AuthError('EXPO_PUBLIC_API_URL no está configurada.', 'SERVER_ERROR');
 
-  let response: Response;
-  try {
-    response = await fetch(`${API_ROOT}${path}`, {
-      method: 'POST',
-      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-  } catch {
-    throw new AuthError('No fue posible conectar con el servidor. Revisa tu conexión.', 'NETWORK_ERROR');
-  }
+    let response: Response;
+    try {
+      response = await fetch(`${API_ROOT}/api/v1/auth/register-complete`, {
+        method: 'POST',
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+    } catch {
+      throw new AuthError('No fue posible conectar con el servidor. Revisa tu conexión.', 'NETWORK_ERROR');
+    }
 
-  let payload: ApiAuthPayload = {};
-  try {
-    payload = await response.json() as ApiAuthPayload;
-  } catch {
-    if (response.ok) throw new AuthError('El servidor devolvió una respuesta inválida.', 'INVALID_RESPONSE');
-  }
+    let payload: ApiAuthPayload = {};
+    try {
+      payload = (await response.json()) as ApiAuthPayload;
+    } catch {
+      if (response.ok) throw new AuthError('El servidor devolvió una respuesta inválida.', 'INVALID_RESPONSE');
+    }
 
-  if (!response.ok) {
-    const error = payload as AuthApiErrorResponse;
-    const fallback = response.status === 401
-      ? 'El correo o la contraseña no son correctos.'
-      : 'No fue posible completar la solicitud.';
-    throw new AuthError(
-      error.message ?? error.error ?? fallback,
-      response.status === 401 ? 'INVALID_CREDENTIALS' : response.status === 422 ? 'VALIDATION_ERROR' : 'SERVER_ERROR',
-      error.errors,
-    );
-  }
+    if (!response.ok) {
+      const error = payload as AuthApiErrorResponse;
+      const code = error.error;
+      if (code === 'STUDENT_ALREADY_LINKED' || response.status === 409) {
+        if (code === 'EMAIL_ALREADY_EXISTS') {
+          throw new AuthError(error.message ?? 'Ya existe una cuenta con este correo.', 'EMAIL_ALREADY_EXISTS');
+        }
+        throw new AuthError(
+          error.message ?? 'Esta matrícula ya se encuentra vinculada a otra cuenta.',
+          'STUDENT_ALREADY_LINKED',
+        );
+      }
+      if (response.status === 401) {
+        throw new AuthError(
+          error.message ?? 'El correo o la contraseña institucional no son correctos.',
+          'INVALID_CREDENTIALS',
+        );
+      }
+      throw new AuthError(
+        error.message ?? error.error ?? 'No fue posible completar el registro.',
+        response.status === 422 ? 'VALIDATION_ERROR' : 'SERVER_ERROR',
+        error.errors,
+      );
+    }
 
-  return normalizeResponse(payload);
-}
-
-export const authService = {
-  login: (credentials: LoginDto) => request('/api/v1/auth/login', credentials),
-  register: (account: RegisterDto) => request('/api/v1/auth/register', account),
-  registerComplete: (data: RegisterCompleteDto) => registrationService.registerComplete(data),
-  verifyInstitutional: (credentials: AuthCredentials): Promise<InstitutionalVerification> =>
-    institutionalService.verifyInstitutional(credentials),
+    return normalizeResponse(payload);
+  },
 };

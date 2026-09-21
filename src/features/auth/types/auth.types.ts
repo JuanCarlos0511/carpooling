@@ -26,11 +26,40 @@ export const institutionalLoginSchema = z.object({
   password: z.string().min(1, 'La contraseña es obligatoria.'),
 });
 
+export const registerCompleteSchema = z.object({
+  fullName: z.string().trim().min(2, 'Ingresa tu nombre completo.').max(100),
+  email: emailSchema,
+  password: passwordSchema,
+  role: z.enum(['driver', 'passenger']),
+  institutional: institutionalLoginSchema,
+});
+
 export type LoginFormValues = z.infer<typeof loginSchema>;
 export type RegisterFormValues = z.infer<typeof registerSchema>;
 export type InstitutionalLoginFormValues = z.infer<typeof institutionalLoginSchema>;
+export type RegisterCompleteFormValues = z.infer<typeof registerCompleteSchema>;
 export type LoginDto = Pick<LoginFormValues, 'email' | 'password'>;
 export type RegisterDto = Pick<RegisterFormValues, 'fullName' | 'email' | 'password'>;
+export type RegisterCompleteDto = {
+  fullName: string;
+  email: string;
+  password: string;
+  role: 'driver' | 'passenger';
+  institutional: {
+    username: string;
+    password: string;
+  };
+};
+
+export type InstitutionalVerification = {
+  fullName: string;
+  studentId: string;
+  institutionalEmail: string;
+  period: string;
+  status: string;
+  campus: string;
+  program?: string;
+};
 
 export type AuthCredentials = {
   username: string;
@@ -54,10 +83,21 @@ export type InstitutionalUserProfile = {
   id: string;
   studentId: string;
   fullName: string;
+  email?: string;
   institutionalEmail: string;
   campus: string;
   faculty: string;
   universityId: string;
+  institution?: {
+    institutionId: string;
+    studentId: string;
+    institutionalEmail: string;
+    period: string;
+    status: string;
+    campus: string;
+    program?: string;
+    verifiedAt?: string;
+  } | null;
 };
 
 export type UniversityId = 'uat' | 'api' | (string & {});
@@ -85,7 +125,12 @@ export class AuthError extends Error {
       | 'SERVER_ERROR'
       | 'TOKEN_EXPIRED'
       | 'UNSUPPORTED_PROVIDER'
-      | 'INVALID_RESPONSE',
+      | 'INVALID_RESPONSE'
+      | 'STUDENT_ALREADY_LINKED'
+      | 'EMAIL_ALREADY_EXISTS'
+      | 'UAT_AUTH_FAILED'
+      | 'STUDENT_NOT_ACTIVE'
+      | 'STUDENT_NOT_CURRENT',
     public readonly fieldErrors?: Record<string, string[]>,
   ) {
     super(message);
