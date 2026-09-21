@@ -1,5 +1,5 @@
-import { Link } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { type AppTheme, useAppTheme } from '@/constants/theme';
 import { AuthScaffold } from '@/features/auth/components/AuthScaffold';
@@ -7,8 +7,16 @@ import { EncryptionNotice } from '@/features/auth/components/AuthShared';
 import { RegisterForm } from '@/features/auth/components/RegisterForm';
 
 export default function RegisterScreen() {
+  const router = useRouter();
   const theme = useAppTheme();
   const styles = createStyles(theme);
+  const returnToLogin = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace('/login');
+  };
   return (
     <AuthScaffold
       badge="NUEVA CUENTA"
@@ -18,7 +26,9 @@ export default function RegisterScreen() {
         <View style={styles.footer}>
           <View style={styles.footerRow}>
             <Text style={styles.footerText}>¿Ya posees una cuenta? </Text>
-            <Link href="/login" style={styles.link}>Iniciar sesión</Link>
+            <Pressable accessibilityRole="button" hitSlop={theme.spacing.sm} onPress={returnToLogin}>
+              <Text style={styles.link}>Iniciar sesión</Text>
+            </Pressable>
           </View>
           <EncryptionNotice />
         </View>
@@ -34,6 +44,10 @@ function createStyles(theme: AppTheme) {
     footer: { alignItems: 'center', gap: theme.spacing.md },
     footerRow: { flexDirection: 'row' },
     footerText: { color: theme.colors.textSecondary, fontSize: theme.typography.size.bodySmall },
-    link: { color: theme.colors.textPrimary, fontSize: theme.typography.size.bodySmall, fontWeight: theme.typography.weight.semibold },
+    link: {
+      color: theme.colors.textPrimary,
+      fontSize: theme.typography.size.bodySmall,
+      fontWeight: theme.typography.weight.semibold,
+    },
   });
 }
