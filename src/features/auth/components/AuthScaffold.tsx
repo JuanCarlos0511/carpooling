@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Badge } from '@/components/ui/Badge';
 import { type AppTheme, useAppTheme } from '@/constants/theme';
+import { AuthCard } from '@/features/auth/components/AuthCard';
 
 type AuthScaffoldProps = {
   title: string;
@@ -19,9 +20,17 @@ type AuthScaffoldProps = {
   badge?: string;
   children: ReactNode;
   footer?: ReactNode;
+  contained?: boolean;
 };
 
-export function AuthScaffold({ title, subtitle, badge, children, footer }: AuthScaffoldProps) {
+export function AuthScaffold({
+  title,
+  subtitle,
+  badge,
+  children,
+  footer,
+  contained = true,
+}: AuthScaffoldProps) {
   const theme = useAppTheme();
   const styles = createStyles(theme);
   return (
@@ -48,7 +57,7 @@ export function AuthScaffold({ title, subtitle, badge, children, footer }: AuthS
                 <Text style={styles.subtitle}>{subtitle}</Text>
               </View>
             </View>
-            <View style={styles.card}>{children}</View>
+            {contained ? <AuthCard>{children}</AuthCard> : children}
             {footer ? <View style={styles.footer}>{footer}</View> : null}
           </View>
         </ScrollView>
@@ -96,13 +105,6 @@ function createStyles(theme: AppTheme) {
       lineHeight: theme.spacing.lg,
       maxWidth: theme.metrics.contentMaxWidth,
       textAlign: 'center',
-    },
-    card: {
-      backgroundColor: theme.colors.surface,
-      borderColor: theme.colors.border,
-      borderRadius: theme.borderRadius.md,
-      borderWidth: theme.metrics.borderWidth,
-      padding: theme.spacing.md,
     },
     footer: { alignItems: 'center', gap: theme.spacing.sm, marginTop: theme.spacing.lg },
   });
