@@ -79,13 +79,13 @@ export const registrationService = {
     if (!response.ok) {
       const error = payload as AuthApiErrorResponse;
       const code = error.error;
-      if (code === 'STUDENT_ALREADY_LINKED' || response.status === 409) {
+      if (code === 'STUDENT_ID_ALREADY_LINKED' || response.status === 409) {
         if (code === 'EMAIL_ALREADY_EXISTS') {
           throw new AuthError(error.message ?? 'Ya existe una cuenta con este correo.', 'EMAIL_ALREADY_EXISTS');
         }
         throw new AuthError(
           error.message ?? 'Esta matrícula ya se encuentra vinculada a otra cuenta.',
-          'STUDENT_ALREADY_LINKED',
+          'STUDENT_ID_ALREADY_LINKED',
         );
       }
       if (response.status === 401) {

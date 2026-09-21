@@ -126,7 +126,7 @@ export class AuthError extends Error {
       | 'TOKEN_EXPIRED'
       | 'UNSUPPORTED_PROVIDER'
       | 'INVALID_RESPONSE'
-      | 'STUDENT_ALREADY_LINKED'
+      | 'STUDENT_ID_ALREADY_LINKED'
       | 'EMAIL_ALREADY_EXISTS'
       | 'UAT_AUTH_FAILED'
       | 'STUDENT_NOT_ACTIVE'

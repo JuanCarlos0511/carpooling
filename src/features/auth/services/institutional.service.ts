@@ -38,10 +38,10 @@ export const institutionalService = {
     if (!response.ok) {
       const errPayload = payload as AuthApiErrorResponse;
       const code = errPayload.error;
-      if (code === 'STUDENT_ALREADY_LINKED' || response.status === 409) {
+      if (code === 'STUDENT_ID_ALREADY_LINKED' || response.status === 409) {
         throw new AuthError(
           errPayload.message ?? 'Esta matrícula ya se encuentra vinculada a otra cuenta registrada.',
-          'STUDENT_ALREADY_LINKED',
+          'STUDENT_ID_ALREADY_LINKED',
         );
       }
       if (code === 'STUDENT_NOT_CURRENT' || code === 'STUDENT_NOT_ACTIVE') {
