@@ -101,7 +101,7 @@ export function RegisterForm() {
         icon={<ArrowRight color={theme.colors.primaryForeground} size={theme.metrics.iconSize} />}
         loading={isSubmitting}
         onPress={() => void onSubmit()}
-        title="Crear cuenta"
+        title="Siguiente"
       />
       <AuthSeparator>o regístrate con</AuthSeparator>
       <SocialButtons onPress={socialMessage} />

@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { Link, useFocusEffect } from 'expo-router';
 import { Alert, BackHandler, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { type AppTheme, useAppTheme } from '@/constants/theme';
@@ -13,14 +13,14 @@ export function AuthFlowScreen({ initialMode }: { initialMode: AuthMode }) {
   const styles = createStyles(theme);
   const isLogin = mode === 'login';
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     if (isLogin) return undefined;
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
       setMode('login');
       return true;
     });
     return () => subscription.remove();
-  }, [isLogin]);
+  }, [isLogin]));
 
   return (
     <AuthScaffold

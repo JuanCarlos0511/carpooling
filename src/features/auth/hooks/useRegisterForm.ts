@@ -2,34 +2,21 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import { useForm } from 'react-hook-form';
 
-import { useAuth } from '@/features/auth/context/AuthContext';
-import { authService } from '@/features/auth/services/auth.service';
-import { AuthError, registerSchema, type RegisterFormValues } from '@/features/auth/types/auth.types';
+import { useRegistrationDraft } from '@/features/auth/context/RegistrationDraftContext';
+import { registerSchema, type RegisterFormValues } from '@/features/auth/types/auth.types';
 
 export function useRegisterForm() {
   const router = useRouter();
-  const { completeAuthentication } = useAuth();
+  const { draft, saveDraft } = useRegistrationDraft();
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { fullName: '', email: '', password: '', acceptTerms: false },
+    defaultValues: draft ?? { fullName: '', email: '', password: '', acceptTerms: false },
     mode: 'onTouched',
   });
 
-  const onSubmit = form.handleSubmit(async ({ fullName, email, password }) => {
-    form.clearErrors('root');
-    try {
-      const response = await authService.register({
-        fullName: fullName.trim(),
-        email: email.trim().toLowerCase(),
-        password,
-      });
-      await completeAuthentication(response, true);
-      router.replace('/');
-    } catch (error) {
-      form.setError('root.server', {
-        message: error instanceof AuthError ? error.message : 'Ocurrió un error inesperado.',
-      });
-    }
+  const onSubmit = form.handleSubmit((values) => {
+    saveDraft({ ...values, fullName: values.fullName.trim(), email: values.email.trim().toLowerCase() });
+    router.push('/complete-registration');
   });
 
   return { ...form, onSubmit, isSubmitting: form.formState.isSubmitting };
