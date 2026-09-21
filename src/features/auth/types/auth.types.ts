@@ -50,6 +50,7 @@ export type AuthApiErrorResponse = {
 };
 
 export type InstitutionalUserProfile = {
+  role?: 'driver' | 'passenger';
   id: string;
   studentId: string;
   fullName: string;

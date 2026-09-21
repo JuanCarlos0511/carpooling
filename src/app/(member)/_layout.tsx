@@ -1,14 +1,14 @@
-import { Redirect } from 'expo-router';
+import { Redirect, Stack } from 'expo-router';
 import { ActivityIndicator, View } from 'react-native';
 import { useAppTheme } from '@/constants/theme';
 import { useAuth } from '@/features/auth/context/AuthContext';
 
-export default function HomeScreen() {
-  const { status, user } = useAuth();
+export default function MemberLayout() {
+  const { status } = useAuth();
   const theme = useAppTheme();
   if (status === 'idle' || status === 'authenticating') {
     return <View style={{ flex: 1, justifyContent: 'center', backgroundColor: theme.colors.background }}><ActivityIndicator color={theme.colors.textPrimary} /></View>;
   }
   if (status !== 'authenticated') return <Redirect href="/login" />;
-  return <Redirect href={user?.role === 'driver' ? '/driver' : '/passenger'} />;
+  return <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.colors.background } }} />;
 }
