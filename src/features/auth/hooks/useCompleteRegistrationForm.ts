@@ -14,7 +14,7 @@ export function useCompleteRegistrationForm() {
   const { completeAuthentication } = useAuth();
   const { draft, clearDraft } = useRegistrationDraft();
 
-  const [role, setRole] = useState<'driver' | 'passenger'>('driver');
+  const [role, setRole] = useState<'driver' | 'passenger'>('passenger');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [verification, setVerification] = useState<InstitutionalVerification | null>(null);

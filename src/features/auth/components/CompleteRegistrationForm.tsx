@@ -46,8 +46,8 @@ export type CompleteRegistrationFormProps = {
 };
 
 const roles = [
-  { value: 'driver', title: 'Conductor', description: 'Comparto mi auto', Icon: CarFront },
   { value: 'passenger', title: 'Pasajero', description: 'Busco asiento', Icon: BriefcaseBusiness },
+  { value: 'driver', title: 'Conductor', description: 'Comparto mi auto', Icon: CarFront },
 ] as const;
 
 export function CompleteRegistrationForm({
@@ -94,17 +94,19 @@ export function CompleteRegistrationForm({
                 onPress={() => onRoleChange(value)}
                 style={({ pressed }) => [styles.role, selected && styles.roleSelected, pressed && styles.pressed]}
               >
-                <View style={styles.roleTop}>
-                  <Icon
-                    color={selected ? theme.colors.primaryForeground : theme.colors.textSecondary}
-                    size={theme.spacing.lg}
-                    strokeWidth={1.8}
-                  />
-                  <View style={[styles.radio, selected && styles.radioSelected]} />
-                </View>
-                <View style={styles.roleText}>
-                  <Text style={[styles.roleTitle, selected && styles.selectedText]}>{title}</Text>
-                  <Text style={[styles.roleDescription, selected && styles.selectedText]}>{description}</Text>
+                <View style={styles.roleContent}>
+                  <View style={styles.roleTop}>
+                    <Icon
+                      color={selected ? theme.colors.primaryForeground : theme.colors.textSecondary}
+                      size={theme.spacing.lg}
+                      strokeWidth={1.8}
+                    />
+                    <View style={[styles.radio, selected && styles.radioSelected]} />
+                  </View>
+                  <View style={styles.roleText}>
+                    <Text style={[styles.roleTitle, selected && styles.selectedText]}>{title}</Text>
+                    <Text style={[styles.roleDescription, selected && styles.selectedText]}>{description}</Text>
+                  </View>
                 </View>
               </Pressable>
             );
@@ -256,6 +258,7 @@ function createStyles(theme: AppTheme) {
     },
     role: { borderRadius: theme.borderRadius.sm, flex: 1, gap: theme.spacing.md, padding: theme.spacing.md },
     roleSelected: { backgroundColor: theme.colors.primary },
+    roleContent: { gap: theme.spacing.md },
     roleTop: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
     roleText: { gap: theme.spacing.xs },
     roleTitle: { color: theme.colors.textSecondary, fontSize: theme.typography.size.subtitle, fontWeight: theme.typography.weight.semibold },
