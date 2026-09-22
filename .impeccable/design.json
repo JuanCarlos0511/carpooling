@@ -1,22 +1,22 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-22T14:30:23.086Z",
+  "generatedAt": "2026-09-22T15:10:16.946Z",
   "title": "Design System: Hopn",
   "extensions": {
     "colorMeta": {
       "light-background": {
         "role": "neutral",
         "displayName": "Papel de Campus",
-        "canonical": "#F4F4F5",
+        "canonical": "#F3F8F7",
         "tonalRamp": [
-          "#242426",
-          "#444447",
-          "#67676B",
-          "#8B8B90",
-          "#AFAFB4",
-          "#D0D0D4",
-          "#E7E7E9",
-          "#F4F4F5"
+          "#102321",
+          "#29413E",
+          "#45615D",
+          "#63817C",
+          "#85A19B",
+          "#ACC2BD",
+          "#D4E3E0",
+          "#F3F8F7"
         ]
       },
       "light-surface": {
@@ -37,91 +37,121 @@
       "light-text": {
         "role": "primary",
         "displayName": "Tinta de Encuentro",
-        "canonical": "#18181B",
+        "canonical": "#102321",
         "tonalRamp": [
-          "#18181B",
-          "#343438",
-          "#535358",
-          "#737379",
-          "#94949A",
-          "#B7B7BC",
-          "#DADADD",
-          "#F4F4F5"
+          "#102321",
+          "#2D403D",
+          "#4C5F5B",
+          "#6C7F7A",
+          "#8EA09B",
+          "#B1C1BD",
+          "#D5E2DF",
+          "#F3F8F7"
         ]
       },
-      "light-border": {
-        "role": "neutral",
-        "displayName": "Línea Suave",
-        "canonical": "#E4E4E7",
+      "light-accent-start": {
+        "role": "primary",
+        "displayName": "Aqua de Ruta",
+        "canonical": "#14B8A6",
         "tonalRamp": [
-          "#232326",
-          "#414145",
-          "#626267",
-          "#838388",
-          "#A5A5AA",
-          "#C5C5CA",
-          "#DBDBDF",
-          "#F1F1F3"
+          "#07342F",
+          "#09594F",
+          "#0C8072",
+          "#10A795",
+          "#14B8A6",
+          "#58D1C4",
+          "#9BE6DE",
+          "#DDF8F5"
+        ]
+      },
+      "light-accent-end": {
+        "role": "primary",
+        "displayName": "Azul de Encuentro",
+        "canonical": "#0EA5E9",
+        "tonalRamp": [
+          "#042B3D",
+          "#064E6D",
+          "#08729F",
+          "#0A96D0",
+          "#0EA5E9",
+          "#53BFEF",
+          "#98D9F6",
+          "#DCF3FC"
         ]
       },
       "dark-background": {
         "role": "neutral",
         "displayName": "Noche de Ruta",
-        "canonical": "#0F0F12",
+        "canonical": "#101114",
         "tonalRamp": [
-          "#0F0F12",
-          "#2B2B30",
-          "#48484E",
-          "#67676D",
-          "#87878D",
-          "#A9A9AE",
-          "#CDCDD1",
-          "#F1F1F2"
+          "#101114",
+          "#2C2E32",
+          "#4A4C51",
+          "#696C72",
+          "#8A8D93",
+          "#ADB0B5",
+          "#D1D3D6",
+          "#F3F4F5"
         ]
       },
       "dark-surface": {
         "role": "neutral",
         "displayName": "Parada Nocturna",
-        "canonical": "#16161D",
+        "canonical": "#181A1D",
         "tonalRamp": [
-          "#16161D",
-          "#313139",
-          "#4E4E56",
-          "#6C6C74",
-          "#8C8C93",
-          "#ADADB3",
-          "#CFCFD3",
-          "#F1F1F2"
+          "#181A1D",
+          "#33363A",
+          "#505358",
+          "#6E7177",
+          "#8E9197",
+          "#AFB2B7",
+          "#D0D2D6",
+          "#F2F3F4"
         ]
       },
       "dark-text": {
         "role": "primary",
         "displayName": "Luz de Encuentro",
-        "canonical": "#FFFFFF",
+        "canonical": "#F7F7F8",
         "tonalRamp": [
-          "#262626",
-          "#494949",
-          "#6D6D6D",
-          "#929292",
-          "#B6B6B6",
-          "#D5D5D5",
-          "#ECECEC",
-          "#FFFFFF"
+          "#252526",
+          "#474748",
+          "#6A6A6C",
+          "#8E8E90",
+          "#B2B2B4",
+          "#D1D1D3",
+          "#E8E8E9",
+          "#F7F7F8"
         ]
       },
-      "dark-border": {
-        "role": "neutral",
-        "displayName": "Línea Nocturna",
-        "canonical": "#262631",
+      "dark-accent-start": {
+        "role": "primary",
+        "displayName": "Naranja de Partida",
+        "canonical": "#FFA263",
         "tonalRamp": [
-          "#1A1A22",
-          "#353540",
-          "#52525D",
-          "#70707A",
-          "#909099",
-          "#B1B1B8",
-          "#D2D2D7",
-          "#F2F2F4"
+          "#3D2211",
+          "#6B3B1E",
+          "#99552B",
+          "#C87038",
+          "#ED8B4D",
+          "#FFA263",
+          "#FFC49C",
+          "#FFE8D5"
+        ]
+      },
+      "dark-accent-end": {
+        "role": "primary",
+        "displayName": "Violeta de Llegada",
+        "canonical": "#703297",
+        "tonalRamp": [
+          "#210D2E",
+          "#3A164F",
+          "#552273",
+          "#703297",
+          "#8D50B0",
+          "#AC79C7",
+          "#CDA8DF",
+          "#EEDCF4"
         ]
       },
       "success": {
@@ -212,9 +242,9 @@
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary-light",
-      "description": "Acción principal de alto contraste con respuesta por opacidad.",
+      "description": "Acción principal con degradado sin borde de acento; cambia a gris sólido cuando está deshabilitada.",
       "html": "<button class=\"ds-btn-primary\">CONTINUAR</button>",
-      "css": ".ds-btn-primary { height: 52px; padding: 0 16px; border: 1px solid #18181B; border-radius: 6px; background: #18181B; color: #FFFFFF; font: 500 13px system-ui; transition: opacity 160ms ease; } .ds-btn-primary:hover { opacity: .86; } .ds-btn-primary:active { opacity: .72; } .ds-btn-primary:focus-visible { outline: 2px solid #71717A; outline-offset: 2px; }"
+      "css": ".ds-btn-primary { height: 52px; padding: 0 16px; border: 0; border-radius: 6px; background: linear-gradient(90deg, #14B8A6, #0EA5E9); color: #102321; font: 500 13px system-ui; transition: opacity 160ms ease; } .ds-btn-primary:hover { opacity: .86; } .ds-btn-primary:active { opacity: .72; } .ds-btn-primary:focus-visible { outline: 2px solid #087F75; outline-offset: 2px; } .ds-btn-primary:disabled { background: #596461; color: #E2E7E6; opacity: 1; }"
     },
     {
       "name": "Outline Button",
@@ -222,7 +252,7 @@
       "refersTo": "button-outline-light",
       "description": "Acción secundaria transparente con borde neutral fuerte.",
       "html": "<button class=\"ds-btn-outline\">CAMBIAR MODALIDAD</button>",
-      "css": ".ds-btn-outline { height: 52px; padding: 0 16px; border: 1px solid #A1A1AA; border-radius: 6px; background: transparent; color: #18181B; font: 500 13px system-ui; transition: opacity 160ms ease, border-color 160ms ease; } .ds-btn-outline:hover { border-color: #71717A; } .ds-btn-outline:active { opacity: .72; } .ds-btn-outline:focus-visible { outline: 2px solid #71717A; outline-offset: 2px; }"
+      "css": ".ds-btn-outline { height: 52px; padding: 0 16px; border: 1px solid #8AA9A3; border-radius: 6px; background: transparent; color: #102321; font: 500 13px system-ui; } .ds-btn-outline:hover { border-color: #087F75; } .ds-btn-outline:focus-visible { outline: 2px solid #087F75; outline-offset: 2px; } .ds-btn-outline:disabled { border-color: #D5E5E2; background: #596461; color: #E2E7E6; }"
     },
     {
       "name": "Text Input",
@@ -230,14 +260,14 @@
       "refersTo": "input-light",
       "description": "Campo de 52 con etiqueta externa, fondo tonal y foco por borde.",
       "html": "<label class=\"ds-field\"><span>CORREO ELECTRÓNICO</span><input placeholder=\"nombre@correo.com\" /></label>",
-      "css": ".ds-field { display: grid; gap: 8px; color: #71717A; font: 500 11px system-ui; letter-spacing: .8px; } .ds-field input { height: 52px; padding: 0 16px; border: 1px solid #E4E4E7; border-radius: 6px; background: #F4F4F5; color: #18181B; font: 400 15px system-ui; outline: none; } .ds-field input:hover { border-color: #A1A1AA; } .ds-field input:focus-visible { border-color: #71717A; outline: 2px solid transparent; }"
+      "css": ".ds-field { display: grid; gap: 8px; color: #4F6662; font: 500 11px system-ui; letter-spacing: .8px; } .ds-field input { height: 52px; padding: 0 16px; border: 1px solid #D5E5E2; border-radius: 6px; background: #F0F6F5; color: #102321; font: 400 15px system-ui; outline: none; } .ds-field input:hover { border-color: #8AA9A3; } .ds-field input:focus-visible { border-color: #087F75; outline: 2px solid transparent; }"
     },
     {
       "name": "Status Badge",
       "kind": "chip",
       "description": "Insignia compacta para contexto y estados verificados.",
       "html": "<span class=\"ds-badge\"><i></i>CUENTA VERIFICADA</span>",
-      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border: 1px solid #E4E4E7; border-radius: 9999px; background: rgba(24,24,27,.05); color: #71717A; font: 600 10px system-ui; letter-spacing: 1.6px; } .ds-badge i { width: 4px; height: 4px; border-radius: 9999px; background: #18181B; }"
+      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border: 1px solid #D5E5E2; border-radius: 9999px; background: rgba(20,184,166,.10); color: #4F6662; font: 600 10px system-ui; letter-spacing: 1.6px; } .ds-badge i { width: 4px; height: 4px; border-radius: 9999px; background: #14B8A6; }"
     },
     {
       "name": "Authentication Card",
@@ -245,19 +275,19 @@
       "refersTo": "auth-card-light",
       "description": "Contenedor plano de formulario separado mediante tono y borde.",
       "html": "<section class=\"ds-auth-card\"><strong>Bienvenido</strong><p>Ingresa para conectar con tu comunidad.</p></section>",
-      "css": ".ds-auth-card { padding: 16px; border: 1px solid #E4E4E7; border-radius: 10px; background: #FFFFFF; color: #18181B; font: 400 15px system-ui; } .ds-auth-card strong { display: block; margin-bottom: 8px; font-size: 17px; font-weight: 600; } .ds-auth-card p { margin: 0; color: #71717A; }"
+      "css": ".ds-auth-card { padding: 16px; border: 1px solid #D5E5E2; border-radius: 10px; background: #FFFFFF; color: #102321; font: 400 15px system-ui; } .ds-auth-card strong { display: block; margin-bottom: 8px; font-size: 17px; font-weight: 600; } .ds-auth-card p { margin: 0; color: #4F6662; }"
     },
     {
       "name": "Checkbox",
       "kind": "custom",
       "description": "Selección accesible de 24 con confirmación invertida.",
       "html": "<label class=\"ds-checkbox\"><input type=\"checkbox\" checked /><span aria-hidden=\"true\">✓</span>Acepto los términos</label>",
-      "css": ".ds-checkbox { display: inline-flex; align-items: center; gap: 8px; color: #71717A; font: 400 13px system-ui; cursor: pointer; } .ds-checkbox input { position: absolute; opacity: 0; } .ds-checkbox span { display: grid; width: 24px; height: 24px; place-items: center; border: 1px solid #A1A1AA; border-radius: 6px; background: #18181B; color: #FFFFFF; } .ds-checkbox:focus-within span { outline: 2px solid #71717A; outline-offset: 2px; }"
+      "css": ".ds-checkbox { display: inline-flex; align-items: center; gap: 8px; color: #4F6662; font: 400 13px system-ui; cursor: pointer; } .ds-checkbox input { position: absolute; opacity: 0; } .ds-checkbox span { display: grid; width: 24px; height: 24px; place-items: center; border: 1px solid #8AA9A3; border-radius: 6px; background: linear-gradient(90deg, #14B8A6, #0EA5E9); color: #102321; } .ds-checkbox:focus-within span { outline: 2px solid #087F75; outline-offset: 2px; }"
     }
   ],
   "narrative": {
     "northStar": "Rutas en común",
-    "overview": "Hopn debe sentirse como un punto de encuentro entre alumnos que ya comparten universidad, horarios y trayectos. Su interfaz es cercana y social, con controles cálidos y accesibles, pero conserva la precisión necesaria para tratar identidad, reservas y coordinación de viajes. La profundidad se expresa con cambios tonales, bordes finos y jerarquía espacial.",
+    "overview": "Hopn debe sentirse como un punto de encuentro entre alumnos que ya comparten universidad, horarios y trayectos. Su interfaz es cercana y social, con controles cálidos y accesibles. El sistema usa una base neutral teñida suavemente en modo claro y gris grafito en modo oscuro; los degradados se reservan para logo, selección y acciones principales.",
     "keyCharacteristics": [
       "Cercano, social y universitario.",
       "Contraste claro y lectura inmediata.",
@@ -268,7 +298,17 @@
     "rules": [
       {
         "name": "The Accent-at-the-Junction Rule",
-        "body": "El degradado futuro aparece en logo, selección y acciones principales; no cubre fondos completos ni compite con el contenido.",
+        "body": "El degradado aparece en logo, selección y acciones principales; no cubre fondos completos ni compite con el contenido.",
+        "section": "colors"
+      },
+      {
+        "name": "The Gradient Border Rule",
+        "body": "Un fondo degradado no usa borde de acento: queda sin borde o con borde gris. El naranja o aqua en bordes se reserva para foco y selección sobre superficies grises.",
+        "section": "colors"
+      },
+      {
+        "name": "The Disabled-is-Neutral Rule",
+        "body": "Todo botón deshabilitado usa un fondo gris sólido sin degradado; el degradado aparece únicamente cuando la acción está habilitada.",
         "section": "colors"
       },
       {
@@ -295,12 +335,15 @@
     "dos": [
       "Do usa capas tonales y bordes para separar contenido.",
       "Do conserva objetivos táctiles de al menos 48 en Android y 44 en iOS.",
-      "Do reserva el color semántico para estados y el degradado futuro para acentos clave.",
+      "Do reserva el color semántico para estados y el degradado para acentos clave habilitados.",
+      "Do usa bordes naranja o aqua únicamente sobre fondos grises.",
       "Do prueba cada pantalla en claro y oscuro con texto ampliado.",
       "Do permite que el contenido respire mediante la escala espacial existente."
     ],
     "donts": [
       "Don't cubras fondos completos con degradados ni los uses en cada control.",
+      "Don't combines un fondo degradado con un borde naranja o aqua.",
+      "Don't muestres degradado en botones deshabilitados.",
       "Don't añadas sombras para compensar una jerarquía tonal débil.",
       "Don't anides tarjetas sin una necesidad funcional clara.",
       "Don't introduzcas radios, colores o tamaños fuera de las escalas documentadas.",

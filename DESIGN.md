@@ -2,22 +2,29 @@
 name: Hopn
 description: Red social universitaria cálida y accesible para compartir rutas entre alumnos verificados.
 colors:
-  light-background: "#F4F4F5"
+  light-background: "#F3F8F7"
   light-surface: "#FFFFFF"
-  light-surface-elevated: "#FAFAFA"
-  light-text: "#18181B"
-  light-text-secondary: "#71717A"
-  light-text-muted: "#A1A1AA"
-  light-border: "#E4E4E7"
-  light-border-strong: "#A1A1AA"
-  dark-background: "#0F0F12"
-  dark-surface: "#16161D"
-  dark-surface-elevated: "#1D1D25"
-  dark-text: "#FFFFFF"
-  dark-text-secondary: "#A1A1AA"
-  dark-text-muted: "#71717A"
-  dark-border: "#262631"
-  dark-border-strong: "#52525B"
+  light-surface-elevated: "#EAF4F2"
+  light-text: "#102321"
+  light-text-secondary: "#4F6662"
+  light-text-muted: "#718580"
+  light-border: "#D5E5E2"
+  light-border-strong: "#8AA9A3"
+  light-accent-start: "#14B8A6"
+  light-accent-end: "#0EA5E9"
+  light-accent-strong: "#087F75"
+  dark-background: "#101114"
+  dark-surface: "#181A1D"
+  dark-surface-elevated: "#202328"
+  dark-text: "#F7F7F8"
+  dark-text-secondary: "#B8BBC1"
+  dark-text-muted: "#858991"
+  dark-border: "#2A2D33"
+  dark-border-strong: "#555A64"
+  dark-accent-start: "#FFA263"
+  dark-accent-end: "#703297"
+  disabled-light: "#596461"
+  disabled-dark: "#2A2D33"
   success: "#22C55E"
   danger: "#EF4444"
   warning: "#F59E0B"
@@ -64,15 +71,15 @@ spacing:
   xxl: "48px"
 components:
   button-primary-light:
-    backgroundColor: "{colors.light-text}"
-    textColor: "{colors.light-surface}"
+    backgroundColor: "{colors.light-accent-start}"
+    textColor: "{colors.light-text}"
     typography: "{typography.body-small}"
     rounded: "{rounded.sm}"
     padding: "0 16px"
     height: "52px"
   button-primary-dark:
-    backgroundColor: "{colors.dark-text}"
-    textColor: "{colors.light-text}"
+    backgroundColor: "{colors.dark-accent-end}"
+    textColor: "{colors.dark-text}"
     typography: "{typography.body-small}"
     rounded: "{rounded.sm}"
     padding: "0 16px"
@@ -118,7 +125,7 @@ components:
 
 Hopn debe sentirse como un punto de encuentro entre alumnos que ya comparten universidad, horarios y trayectos. Su interfaz es cercana y social, con controles cálidos y accesibles, pero conserva la precisión necesaria para tratar identidad, reservas y coordinación de viajes.
 
-El sistema vigente usa una base neutral de alto contraste. La evolución cromática confirmada añadirá un degradado aqua a azul (`#14B8A6` → `#0EA5E9`) en modo claro y naranja a violeta (`#FFA263` → `#703297`) en modo oscuro. Esos degradados se reservarán para acentos clave y solo pasarán a ser tokens normativos cuando estén implementados en el tema.
+El sistema usa una base neutral teñida suavemente en modo claro y gris grafito en modo oscuro. Un degradado aqua a azul (`#14B8A6` → `#0EA5E9`) identifica el modo claro; el modo oscuro usa naranja a violeta (`#FFA263` → `#703297`). Los degradados se reservan para logo, selección y acciones principales.
 
 La profundidad se expresa con cambios tonales, bordes finos y jerarquía espacial. Las sombras no forman parte del lenguaje base.
 
@@ -136,21 +143,25 @@ La paleta implementada es neutral y adaptable a los modos claro y oscuro, con co
 
 ### Primary
 
-- **Tinta de Encuentro** (`#18181B`): acción principal, texto de mayor jerarquía y marca en modo claro.
-- **Luz de Encuentro** (`#FFFFFF`): acción principal y texto de mayor jerarquía en modo oscuro.
+- **Ruta Aqua** (`#14B8A6` → `#0EA5E9`): logo, selección y acciones principales en modo claro.
+- **Ruta Atardecer** (`#FFA263` → `#703297`): logo, selección y acciones principales en modo oscuro; una capa oscura preserva el contraste del texto.
 
 ### Neutral
 
-- **Papel de Campus** (`#F4F4F5`): fondo general y fondo de campos en modo claro.
+- **Papel de Campus** (`#F3F8F7`): fondo general en modo claro.
 - **Superficie Abierta** (`#FFFFFF`): tarjetas y contenedores principales en modo claro.
-- **Noche de Ruta** (`#0F0F12`): fondo general y fondo de campos en modo oscuro.
-- **Parada Nocturna** (`#16161D`): tarjetas y contenedores principales en modo oscuro.
-- **Texto Secundario** (`#71717A` en claro; `#A1A1AA` en oscuro): apoyo, instrucciones y metadatos.
-- **Línea Suave** (`#E4E4E7` en claro; `#262631` en oscuro): delimitación sin elevar visualmente las superficies.
+- **Noche de Ruta** (`#101114`): fondo gris grafito general en modo oscuro.
+- **Parada Nocturna** (`#181A1D`): tarjetas y contenedores gris oscuro.
+- **Texto Secundario** (`#4F6662` en claro; `#B8BBC1` en oscuro): apoyo, instrucciones y metadatos.
+- **Línea Suave** (`#D5E5E2` en claro; `#2A2D33` en oscuro): delimitación sin elevar visualmente las superficies.
 
 ### Named Rules
 
-**The Accent-at-the-Junction Rule.** El degradado futuro aparece en logo, selección y acciones principales; no cubre fondos completos ni compite con el contenido.
+**The Accent-at-the-Junction Rule.** El degradado aparece en logo, selección y acciones principales; no cubre fondos completos ni compite con el contenido.
+
+**The Gradient Border Rule.** Un fondo degradado no usa borde de acento: queda sin borde o con borde gris. El naranja o aqua en bordes se reserva para foco y selección sobre superficies grises.
+
+**The Disabled-is-Neutral Rule.** Todo botón deshabilitado usa un fondo gris sólido sin degradado; el degradado aparece únicamente cuando la acción está habilitada.
 
 **The Semantic Color Rule.** Verde, rojo y ámbar comunican éxito, error y advertencia. No se usan como decoración.
 
@@ -197,8 +208,8 @@ Las esquinas son suaves y contenidas: 6 para controles, 10 para tarjetas y 16 pa
 ### Buttons
 
 - **Shape:** rectángulo suavemente curvado (radio 6), altura 52 y relleno horizontal 16.
-- **Primary:** inversión de alto contraste; tinta sobre luz en oscuro y luz sobre tinta en claro.
-- **Pressed / Disabled:** opacidad 0.72 al presionar y 0.45 al deshabilitar.
+- **Primary:** degradado aqua–azul con texto oscuro en claro; degradado naranja–violeta oscurecido con texto blanco en oscuro. No lleva borde de acento.
+- **Pressed / Disabled:** opacidad 0.72 al presionar. Deshabilitado usa gris sólido y texto atenuado, sin degradado.
 - **Outline / Social:** fondo transparente con borde fuerte o suave según jerarquía.
 
 ### Badges
@@ -217,14 +228,14 @@ Las esquinas son suaves y contenidas: 6 para controles, 10 para tarjetas y 16 pa
 ### Inputs / Fields
 
 - **Style:** altura 52, radio 6, fondo igual al lienzo y borde neutral.
-- **Focus:** el borde pasa al neutral fuerte sin añadir resplandor.
+- **Focus:** el borde pasa al acento sólido del tema sin añadir resplandor.
 - **Error:** borde y mensaje rojos; el texto introducido conserva el color primario.
 - **Labels:** mayúsculas discretas sobre el campo, nunca como placeholder único.
 
 ### Checkbox
 
 - **Style:** caja de 24 con radio 6 y borde fuerte.
-- **Selected:** relleno de alto contraste e icono de confirmación invertido.
+- **Selected:** relleno degradado, borde gris e icono de confirmación con contraste comprobado.
 
 ### Authentication Shell
 
@@ -237,13 +248,16 @@ Las esquinas son suaves y contenidas: 6 para controles, 10 para tarjetas y 16 pa
 
 - **Do** usa capas tonales y bordes para separar contenido.
 - **Do** conserva objetivos táctiles de al menos 48 en Android y 44 en iOS.
-- **Do** reserva el color semántico para estados y el degradado futuro para acentos clave.
+- **Do** reserva el color semántico para estados y el degradado para acentos clave habilitados.
+- **Do** usa bordes naranja o aqua únicamente sobre fondos grises.
 - **Do** prueba cada pantalla en claro y oscuro con texto ampliado.
 - **Do** permite que el contenido respire mediante la escala espacial existente.
 
 ### Don't:
 
 - **Don't** cubras fondos completos con degradados ni los uses en cada control.
+- **Don't** combines un fondo degradado con un borde naranja o aqua.
+- **Don't** muestres degradado en botones deshabilitados.
 - **Don't** añadas sombras para compensar una jerarquía tonal débil.
 - **Don't** anides tarjetas sin una necesidad funcional clara.
 - **Don't** introduzcas radios, colores o tamaños fuera de las escalas documentadas.
