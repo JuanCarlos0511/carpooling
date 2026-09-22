@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Link, useFocusEffect } from 'expo-router';
+import { useFocusEffect } from 'expo-router';
 import { Alert, BackHandler, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { type AppTheme, useAppTheme } from '@/constants/theme';
@@ -50,7 +50,6 @@ function LoginFooter({ onCreateAccount, styles }: { onCreateAccount: () => void;
           <Text style={styles.link}>Crear cuenta</Text>
         </Pressable>
       </View>
-      <Link href="/uat-login" style={styles.institutionalLink}>Usar cuenta institucional UAT</Link>
       <View style={styles.legalRow}>
         <Pressable onPress={() => Alert.alert('Términos de servicio', 'El documento legal se publicará antes del lanzamiento.')}>
           <Text style={styles.legalLink}>Términos de servicio</Text>
@@ -92,11 +91,6 @@ function createStyles(theme: AppTheme) {
       color: theme.colors.textPrimary,
       fontSize: theme.typography.size.bodySmall,
       fontWeight: theme.typography.weight.semibold,
-    },
-    institutionalLink: {
-      color: theme.colors.textSecondary,
-      fontSize: theme.typography.size.bodySmall,
-      textDecorationLine: 'underline',
     },
     legalRow: { alignItems: 'center', flexDirection: 'row', gap: theme.spacing.sm },
     legalLink: {

@@ -11,15 +11,15 @@ export function useLoginForm() {
   const { completeAuthentication } = useAuth();
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '', rememberMe: false },
+    defaultValues: { email: '', password: '' },
     mode: 'onTouched',
   });
 
-  const onSubmit = form.handleSubmit(async ({ email, password, rememberMe }) => {
+  const onSubmit = form.handleSubmit(async ({ email, password }) => {
     form.clearErrors('root');
     try {
       const response = await authService.login({ email: email.trim().toLowerCase(), password });
-      await completeAuthentication(response, rememberMe);
+      await completeAuthentication(response, false);
       router.replace('/');
     } catch (error) {
       form.setError('root.server', {

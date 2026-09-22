@@ -1,9 +1,8 @@
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import { ArrowRight, LockKeyhole, Mail } from 'lucide-react-native';
 import { Controller } from 'react-hook-form';
 
 import { Button } from '@/components/ui/Button';
-import { Checkbox } from '@/components/ui/Checkbox';
 import { Input } from '@/components/ui/Input';
 import { type AppTheme, useAppTheme } from '@/constants/theme';
 import { AuthSeparator, ErrorBanner, SocialButtons } from '@/features/auth/components/AuthShared';
@@ -59,22 +58,6 @@ export function LoginForm() {
           />
         )}
       />
-      <Controller
-        control={control}
-        name="rememberMe"
-        render={({ field: { onChange, value } }) => (
-          <Checkbox
-            checked={value}
-            label={
-              <View style={styles.rememberLabel}>
-                <Text style={styles.rememberText}>Recordar sesión</Text>
-                <Text style={styles.days}>30 días</Text>
-              </View>
-            }
-            onChange={onChange}
-          />
-        )}
-      />
       <ErrorBanner>{errors.root?.server?.message}</ErrorBanner>
       <Button
         icon={<ArrowRight color={theme.colors.primaryForeground} size={theme.metrics.iconSize} />}
@@ -83,7 +66,7 @@ export function LoginForm() {
         title="Iniciar sesión"
       />
       <AuthSeparator>o continúa con</AuthSeparator>
-      <SocialButtons onPress={socialMessage} />
+      <SocialButtons includeApple={false} onPress={socialMessage} />
     </View>
   );
 }
@@ -91,21 +74,5 @@ export function LoginForm() {
 function createStyles(theme: AppTheme) {
   return StyleSheet.create({
     form: { gap: theme.spacing.md },
-    rememberLabel: {
-      alignItems: 'center',
-      flex: 1,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-    },
-    rememberText: {
-      color: theme.colors.textSecondary,
-      fontSize: theme.typography.size.bodySmall,
-    },
-    days: {
-      color: theme.colors.textMuted,
-      fontSize: theme.typography.size.caption,
-      letterSpacing: theme.typography.letterSpacing.badge,
-      textTransform: 'uppercase',
-    },
   });
 }

@@ -11,7 +11,6 @@ const passwordSchema = z.string()
 export const loginSchema = z.object({
   email: emailSchema,
   password: z.string().min(1, 'La contraseña es obligatoria.'),
-  rememberMe: z.boolean(),
 });
 
 export const registerSchema = z.object({

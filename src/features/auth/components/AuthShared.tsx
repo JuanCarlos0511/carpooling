@@ -17,7 +17,13 @@ export function AuthSeparator({ children }: { children: string }) {
   );
 }
 
-export function SocialButtons({ onPress }: { onPress: (provider: 'Google' | 'Apple') => void }) {
+export function SocialButtons({
+  includeApple = true,
+  onPress,
+}: {
+  includeApple?: boolean;
+  onPress: (provider: 'Google' | 'Apple') => void;
+}) {
   const theme = useAppTheme();
   const styles = createStyles(theme);
   return (
@@ -28,12 +34,14 @@ export function SocialButtons({ onPress }: { onPress: (provider: 'Google' | 'App
         icon={<Text style={styles.googleIcon}>G</Text>}
         onPress={() => onPress('Google')}
       />
-      <Button
-        title="Apple"
-        variant="social"
-        icon={<Apple color={theme.colors.textPrimary} fill={theme.colors.textPrimary} size={theme.metrics.iconSize} />}
-        onPress={() => onPress('Apple')}
-      />
+      {includeApple && (
+        <Button
+          title="Apple"
+          variant="social"
+          icon={<Apple color={theme.colors.textPrimary} fill={theme.colors.textPrimary} size={theme.metrics.iconSize} />}
+          onPress={() => onPress('Apple')}
+        />
+      )}
     </View>
   );
 }
