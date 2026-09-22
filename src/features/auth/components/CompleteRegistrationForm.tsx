@@ -12,6 +12,7 @@ import {
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
+import { GradientFill } from '@/components/ui/GradientFill';
 import { Input } from '@/components/ui/Input';
 import { type AppTheme, useAppTheme } from '@/constants/theme';
 import { ErrorBanner } from '@/features/auth/components/AuthShared';
@@ -94,6 +95,7 @@ export function CompleteRegistrationForm({
                 onPress={() => onRoleChange(value)}
                 style={({ pressed }) => [styles.role, selected && styles.roleSelected, pressed && styles.pressed]}
               >
+                {selected ? <GradientFill /> : null}
                 <View style={styles.roleContent}>
                   <View style={styles.roleTop}>
                     <Icon
@@ -124,7 +126,7 @@ export function CompleteRegistrationForm({
             <Text style={styles.label}>Validación institucional</Text>
             {verification && (
               <View accessibilityLiveRegion="polite" style={styles.linkedBadge}>
-                <CheckCircle2 color={theme.colors.textPrimary} size={theme.typography.size.bodySmall} />
+                <CheckCircle2 color={theme.colors.accentStrong} size={theme.typography.size.bodySmall} />
                 <Text style={styles.linkedBadgeText}>Cuenta vinculada</Text>
               </View>
             )}
@@ -134,7 +136,7 @@ export function CompleteRegistrationForm({
             <>
               <View style={styles.identity}>
                 <View style={styles.shield}>
-                  <ShieldCheck color={theme.colors.textPrimary} size={theme.spacing.lg} />
+                  <ShieldCheck color={theme.colors.accentStrong} size={theme.spacing.lg} />
                 </View>
                 <View style={styles.identityDetails}>
                   <View style={styles.identityHeading}>
@@ -217,7 +219,7 @@ export function CompleteRegistrationForm({
         />
         <View accessibilityLiveRegion="polite" style={styles.status}>
           {verification
-            ? <CheckCircle2 color={theme.colors.textPrimary} size={theme.metrics.iconSize} />
+            ? <CheckCircle2 color={theme.colors.success} size={theme.metrics.iconSize} />
             : <Info color={theme.colors.textSecondary} size={theme.metrics.iconSize} />}
           <Text style={[styles.statusText, verification && styles.statusVerified]}>
             {verification
@@ -257,7 +259,12 @@ function createStyles(theme: AppTheme) {
       padding: theme.spacing.xs,
     },
     role: { borderRadius: theme.borderRadius.sm, flex: 1, gap: theme.spacing.md, padding: theme.spacing.md },
-    roleSelected: { backgroundColor: theme.colors.primary },
+    roleSelected: {
+      backgroundColor: theme.colors.primary,
+      borderColor: theme.colors.transparent,
+      borderWidth: theme.spacing.none,
+      overflow: 'hidden',
+    },
     roleContent: { gap: theme.spacing.md },
     roleTop: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
     roleText: { gap: theme.spacing.xs },
@@ -281,12 +288,12 @@ function createStyles(theme: AppTheme) {
       gap: theme.spacing.md,
       padding: theme.spacing.md,
     },
-    verificationLinked: { borderColor: theme.colors.borderStrong },
+    verificationLinked: { borderColor: theme.colors.accentStrong },
     verificationHeading: { alignItems: 'center', flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, justifyContent: 'space-between' },
     linkedBadge: {
       alignItems: 'center',
-      backgroundColor: theme.colors.overlay,
-      borderColor: theme.colors.borderStrong,
+      backgroundColor: theme.colors.accentSoft,
+      borderColor: theme.colors.accentStrong,
       borderRadius: theme.borderRadius.full,
       borderWidth: theme.metrics.borderWidth,
       flexDirection: 'row',
@@ -295,7 +302,7 @@ function createStyles(theme: AppTheme) {
       paddingVertical: theme.spacing.xs,
     },
     linkedBadgeText: {
-      color: theme.colors.textPrimary,
+      color: theme.colors.accentStrong,
       fontSize: theme.typography.size.caption,
       fontWeight: theme.typography.weight.medium,
       letterSpacing: theme.typography.letterSpacing.label,
@@ -312,8 +319,8 @@ function createStyles(theme: AppTheme) {
       padding: theme.spacing.sm,
     },
     shield: {
-      backgroundColor: theme.colors.overlay,
-      borderColor: theme.colors.borderStrong,
+      backgroundColor: theme.colors.accentSoft,
+      borderColor: theme.colors.accentStrong,
       borderRadius: theme.borderRadius.lg,
       borderWidth: theme.metrics.borderWidth,
       padding: theme.spacing.sm,
@@ -322,11 +329,11 @@ function createStyles(theme: AppTheme) {
     identityHeading: { alignItems: 'center', flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
     identityName: { color: theme.colors.textPrimary, fontSize: theme.typography.size.body, fontWeight: theme.typography.weight.semibold },
     activeBadge: {
-      backgroundColor: theme.colors.overlay,
-      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.accentSoft,
+      borderColor: theme.colors.accentStrong,
       borderRadius: theme.borderRadius.sm,
       borderWidth: theme.metrics.borderWidth,
-      color: theme.colors.textPrimary,
+      color: theme.colors.accentStrong,
       fontSize: theme.typography.size.caption,
       paddingHorizontal: theme.spacing.sm,
       paddingVertical: theme.spacing.xs,
@@ -339,7 +346,7 @@ function createStyles(theme: AppTheme) {
     completeButton: { flexDirection: 'row-reverse' },
     status: { alignItems: 'flex-start', flexDirection: 'row', gap: theme.spacing.sm },
     statusText: { color: theme.colors.textSecondary, flex: 1, fontSize: theme.typography.size.bodySmall, lineHeight: theme.spacing.lg },
-    statusVerified: { color: theme.colors.textPrimary },
+    statusVerified: { color: theme.colors.success },
     privacy: { alignItems: 'center', flexDirection: 'row', gap: theme.spacing.sm },
     privacyText: {
       color: theme.colors.textSecondary,

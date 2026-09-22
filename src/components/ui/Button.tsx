@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { cloneElement, isValidElement, type ReactElement, type ReactNode } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -8,6 +8,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 
+import { GradientFill } from '@/components/ui/GradientFill';
 import { type AppTheme, useAppTheme } from '@/constants/theme';
 
 type ButtonVariant = 'primary' | 'outline' | 'social';
@@ -32,9 +33,14 @@ export function Button({
   const theme = useAppTheme();
   const styles = createStyles(theme);
   const inactive = disabled || loading;
-  const foreground = variant === 'primary'
-    ? theme.colors.primaryForeground
-    : theme.colors.textPrimary;
+  const foreground = disabled
+    ? theme.colors.disabledForeground
+    : variant === 'primary'
+      ? theme.colors.primaryForeground
+      : theme.colors.textPrimary;
+  const renderedIcon = variant === 'primary' && isValidElement(icon)
+    ? cloneElement(icon as ReactElement<{ color?: string }>, { color: foreground })
+    : icon;
 
   return (
     <Pressable
@@ -45,12 +51,14 @@ export function Button({
         styles.base,
         styles[variant],
         pressed && styles.pressed,
-        inactive && styles.disabled,
+        disabled && styles.buttonDisabled,
+        loading && variant !== 'primary' && styles.disabled,
         style,
       ]}
       {...props}
     >
-      {loading ? <ActivityIndicator color={foreground} /> : icon}
+      {variant === 'primary' && !disabled ? <GradientFill /> : null}
+      {loading ? <ActivityIndicator color={foreground} /> : renderedIcon}
       <Text style={[styles.label, { color: foreground }]}>{title}</Text>
     </Pressable>
   );
@@ -65,11 +73,17 @@ function createStyles(theme: AppTheme) {
       gap: theme.spacing.sm,
       height: theme.metrics.controlHeight,
       justifyContent: 'center',
+      overflow: 'hidden',
       paddingHorizontal: theme.spacing.md,
     },
     primary: {
       backgroundColor: theme.colors.primary,
-      borderColor: theme.colors.primary,
+      borderColor: theme.colors.transparent,
+      borderWidth: theme.spacing.none,
+    },
+    buttonDisabled: {
+      backgroundColor: theme.colors.disabledBackground,
+      borderColor: theme.colors.border,
       borderWidth: theme.metrics.borderWidth,
     },
     outline: {

@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Check } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { GradientFill } from '@/components/ui/GradientFill';
 import { type AppTheme, useAppTheme } from '@/constants/theme';
 
 type CheckboxProps = {
@@ -25,6 +26,7 @@ export function Checkbox({ checked, onChange, label, error, accessibilityLabel }
         style={styles.row}
       >
         <View style={[styles.box, checked && styles.boxChecked, error && styles.boxError]}>
+          {checked ? <GradientFill /> : null}
           {checked ? <Check color={theme.colors.primaryForeground} size={theme.metrics.iconSize} /> : null}
         </View>
         {typeof label === 'string' ? <Text style={styles.label}>{label}</Text> : label}
@@ -50,10 +52,11 @@ function createStyles(theme: AppTheme) {
       borderWidth: theme.metrics.borderWidth,
       height: theme.spacing.lg,
       justifyContent: 'center',
+      overflow: 'hidden',
       flexShrink: 0,
       width: theme.spacing.lg,
     },
-    boxChecked: { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
+    boxChecked: { backgroundColor: theme.colors.primary, borderColor: theme.colors.borderStrong },
     boxError: { borderColor: theme.colors.danger },
     label: { color: theme.colors.textSecondary, flexShrink: 1, fontSize: theme.typography.size.bodySmall },
     error: { color: theme.colors.danger, fontSize: theme.typography.size.bodySmall },

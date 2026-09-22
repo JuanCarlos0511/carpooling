@@ -28,7 +28,7 @@ function createStyles(theme: AppTheme) {
       paddingVertical: theme.spacing.xs,
     },
     dot: {
-      backgroundColor: theme.colors.textPrimary,
+      backgroundColor: theme.colors.accent,
       borderRadius: theme.borderRadius.full,
       height: theme.spacing.xs,
       width: theme.spacing.xs,

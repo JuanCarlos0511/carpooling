@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Badge } from '@/components/ui/Badge';
+import { GradientFill } from '@/components/ui/GradientFill';
 import { type AppTheme, useAppTheme } from '@/constants/theme';
 import { AuthCard } from '@/features/auth/components/AuthCard';
 
@@ -48,6 +49,7 @@ export function AuthScaffold({
             <View style={styles.header}>
               <View style={styles.logoFrame}>
                 <View style={styles.logo}>
+                  <GradientFill />
                   <Waves color={theme.colors.white} size={theme.spacing.xl} strokeWidth={1.8} />
                 </View>
               </View>
@@ -86,10 +88,11 @@ function createStyles(theme: AppTheme) {
     },
     logo: {
       alignItems: 'center',
-      backgroundColor: theme.colors.black,
+      backgroundColor: theme.colors.primary,
       borderRadius: theme.borderRadius.sm,
       height: theme.metrics.logoSize,
       justifyContent: 'center',
+      overflow: 'hidden',
       width: theme.metrics.logoSize,
     },
     heading: { alignItems: 'center', gap: theme.spacing.sm },

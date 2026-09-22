@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 
-import { colors, spacing } from '@/constants/theme';
+import { useAppTheme } from '@/constants/theme';
 import type { Ride } from '@/features/routes/ride.types';
 
 type RideCardProps = {
@@ -8,23 +8,24 @@ type RideCardProps = {
 };
 
 export function RideCard({ ride }: RideCardProps) {
+  const theme = useAppTheme();
   return (
     <View
       style={{
-        backgroundColor: colors.surface,
-        borderColor: colors.border,
-        borderRadius: 12,
-        borderWidth: 1,
-        gap: spacing.xs,
-        marginBottom: spacing.md,
-        padding: spacing.md,
+        backgroundColor: theme.colors.surface,
+        borderColor: theme.colors.border,
+        borderRadius: theme.borderRadius.md,
+        borderWidth: theme.metrics.borderWidth,
+        gap: theme.spacing.xs,
+        marginBottom: theme.spacing.md,
+        padding: theme.spacing.md,
       }}
     >
-      <Text style={{ color: colors.text, fontSize: 17, fontWeight: '700' }}>
+      <Text style={{ color: theme.colors.textPrimary, fontSize: theme.typography.size.subtitle, fontWeight: theme.typography.weight.bold }}>
         {ride.origin} - {ride.destination}
       </Text>
-      <Text style={{ color: colors.muted }}>Salida {ride.departure}</Text>
-      <Text style={{ color: colors.primary, fontWeight: '600' }}>
+      <Text style={{ color: theme.colors.textSecondary }}>Salida {ride.departure}</Text>
+      <Text style={{ color: theme.colors.accentStrong, fontWeight: theme.typography.weight.semibold }}>
         {ride.seatsAvailable} plazas disponibles
       </Text>
     </View>

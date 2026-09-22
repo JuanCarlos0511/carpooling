@@ -50,11 +50,11 @@ export function Input({
         ) : null}
       </View>
       <View style={[styles.field, focused && styles.fieldFocused, error && styles.fieldError]}>
-        {Icon ? <Icon color={theme.colors.textSecondary} size={theme.metrics.iconSize} strokeWidth={1.7} /> : null}
+        {Icon ? <Icon color={focused ? theme.colors.focus : theme.colors.textSecondary} size={theme.metrics.iconSize} strokeWidth={1.7} /> : null}
         <TextInput
           accessibilityLabel={label}
           placeholderTextColor={theme.colors.textMuted}
-          selectionColor={theme.colors.textPrimary}
+          selectionColor={theme.colors.focus}
           secureTextEntry={isPassword && !passwordVisible}
           style={styles.input}
           onFocus={(event) => {
@@ -106,7 +106,7 @@ function createStyles(theme: AppTheme) {
       height: theme.metrics.controlHeight,
       paddingHorizontal: theme.spacing.md,
     },
-    fieldFocused: { borderColor: theme.colors.borderStrong },
+    fieldFocused: { borderColor: theme.colors.focus },
     fieldError: { borderColor: theme.colors.danger },
     input: {
       color: theme.colors.textPrimary,

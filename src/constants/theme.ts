@@ -11,36 +11,60 @@ const sharedColors = {
 
 const lightColors = {
   ...sharedColors,
-  background: '#F4F4F5',
+  background: '#F3F8F7',
   surface: '#FFFFFF',
-  surfaceElevated: '#FAFAFA',
-  inputBackground: '#F4F4F5',
-  textPrimary: '#18181B',
-  textSecondary: '#71717A',
-  textMuted: '#A1A1AA',
-  border: '#E4E4E7',
-  borderStrong: '#A1A1AA',
-  primary: '#000000',
-  primaryForeground: '#FFFFFF',
-  overlay: 'rgba(24, 24, 27, 0.05)',
-  pattern: 'rgba(24, 24, 27, 0.05)',
+  surfaceElevated: '#EAF4F2',
+  inputBackground: '#F0F6F5',
+  textPrimary: '#102321',
+  textSecondary: '#4F6662',
+  textMuted: '#718580',
+  border: '#D5E5E2',
+  borderStrong: '#8AA9A3',
+  primary: '#14B8A6',
+  primaryForeground: '#102321',
+  accent: '#14B8A6',
+  accentSecondary: '#0EA5E9',
+  accentStrong: '#087F75',
+  accentSoft: 'rgba(20, 184, 166, 0.10)',
+  focus: '#087F75',
+  overlay: 'rgba(20, 184, 166, 0.08)',
+  pattern: 'rgba(20, 184, 166, 0.08)',
+  dangerSurface: 'rgba(239, 68, 68, 0.08)',
+  disabledBackground: '#596461',
+  disabledForeground: '#E2E7E6',
 } as const;
 
 const darkColors = {
   ...sharedColors,
-  background: '#0F0F12',
-  surface: '#16161D',
-  surfaceElevated: '#1D1D25',
-  inputBackground: '#0F0F12',
-  textPrimary: '#FFFFFF',
-  textSecondary: '#A1A1AA',
-  textMuted: '#71717A',
-  border: '#262631',
-  borderStrong: '#52525B',
-  primary: '#FFFFFF',
-  primaryForeground: '#18181B',
-  overlay: 'rgba(255, 255, 255, 0.06)',
-  pattern: 'rgba(255, 255, 255, 0.08)',
+  background: '#101114',
+  surface: '#181A1D',
+  surfaceElevated: '#202328',
+  inputBackground: '#131518',
+  textPrimary: '#F7F7F8',
+  textSecondary: '#B8BBC1',
+  textMuted: '#858991',
+  border: '#2A2D33',
+  borderStrong: '#555A64',
+  primary: '#703297',
+  primaryForeground: '#FFFFFF',
+  accent: '#FFA263',
+  accentSecondary: '#703297',
+  accentStrong: '#FFA263',
+  accentSoft: 'rgba(255, 162, 99, 0.12)',
+  focus: '#FFA263',
+  overlay: 'rgba(255, 162, 99, 0.08)',
+  pattern: 'rgba(112, 50, 151, 0.10)',
+  dangerSurface: 'rgba(239, 68, 68, 0.12)',
+  disabledBackground: '#2A2D33',
+  disabledForeground: '#9B9FA7',
+} as const;
+
+const lightGradients = {
+  primary: { start: '#14B8A6', end: '#0EA5E9', overlay: 'transparent' },
+} as const;
+
+const darkGradients = {
+  primary: { start: '#FFA263', end: '#703297', overlay: 'rgba(12, 8, 16, 0.44)' },
 } as const;
 
 export const spacing = {
@@ -74,6 +98,7 @@ const metrics = {
 export const lightTheme = {
   dark: false,
   colors: lightColors,
+  gradients: lightGradients,
   spacing,
   borderRadius,
   typography,
@@ -83,6 +108,7 @@ export const lightTheme = {
 export const darkTheme = {
   dark: true,
   colors: darkColors,
+  gradients: darkGradients,
   spacing,
   borderRadius,
   typography,
@@ -100,5 +126,5 @@ export const colors = {
   ...lightColors,
   text: lightColors.textPrimary,
   muted: lightColors.textSecondary,
-  primarySoft: '#DCEFE7',
+  primarySoft: lightColors.accentSoft,
 } as const;

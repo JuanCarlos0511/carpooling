@@ -84,7 +84,7 @@ function createStyles(theme: AppTheme) {
       textTransform: 'uppercase',
     },
     error: {
-      backgroundColor: theme.colors.overlay,
+      backgroundColor: theme.colors.dangerSurface,
       borderColor: theme.colors.danger,
       borderRadius: theme.borderRadius.sm,
       borderWidth: theme.metrics.borderWidth,

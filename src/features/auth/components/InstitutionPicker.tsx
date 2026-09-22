@@ -34,14 +34,14 @@ export function InstitutionPicker({ disabled = false }: { disabled?: boolean }) 
         style={({ pressed }) => [styles.selector, pressed && styles.pressed]}
       >
         <View style={styles.institutionIcon}>
-          <University color={theme.colors.textPrimary} size={theme.spacing.lg} />
+          <University color={theme.colors.accentStrong} size={theme.spacing.lg} />
         </View>
         <View style={styles.description}>
           <Text style={styles.name}>{institution.name}</Text>
           <View style={styles.detailRow}>
             <Text style={styles.campus}>{institution.campus}</Text>
             <View style={styles.officialBadge}>
-              <BadgeCheck color={theme.colors.textSecondary} size={theme.typography.size.bodySmall} />
+              <BadgeCheck color={theme.colors.accentStrong} size={theme.typography.size.bodySmall} />
               <Text style={styles.officialText}>Oficial</Text>
             </View>
           </View>
@@ -78,12 +78,12 @@ export function InstitutionPicker({ disabled = false }: { disabled?: boolean }) 
                 onPress={() => setExpanded(false)}
                 style={({ pressed }) => [styles.selector, styles.selectedOption, pressed && styles.pressed]}
               >
-                <University color={theme.colors.textPrimary} size={theme.spacing.lg} />
+                <University color={theme.colors.accentStrong} size={theme.spacing.lg} />
                 <View style={styles.description}>
                   <Text style={styles.name}>{option.name}</Text>
                   <Text style={styles.campus}>{option.campus}</Text>
                 </View>
-                <Check color={theme.colors.textPrimary} size={theme.metrics.iconSize} />
+                <Check color={theme.colors.accentStrong} size={theme.metrics.iconSize} />
               </Pressable>
             ))}
           </View>
@@ -107,8 +107,8 @@ function createStyles(theme: AppTheme) {
     },
     institutionIcon: {
       alignItems: 'center',
-      backgroundColor: theme.colors.surfaceElevated,
-      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.accentSoft,
+      borderColor: theme.colors.accentStrong,
       borderRadius: theme.borderRadius.sm,
       borderWidth: theme.metrics.borderWidth,
       justifyContent: 'center',
@@ -125,14 +125,14 @@ function createStyles(theme: AppTheme) {
     campus: { color: theme.colors.textSecondary, fontSize: theme.typography.size.bodySmall },
     officialBadge: {
       alignItems: 'center',
-      backgroundColor: theme.colors.overlay,
+      backgroundColor: theme.colors.accentSoft,
       borderRadius: theme.borderRadius.sm,
       flexDirection: 'row',
       gap: theme.spacing.xs,
       paddingHorizontal: theme.spacing.sm,
       paddingVertical: theme.spacing.xs,
     },
-    officialText: { color: theme.colors.textSecondary, fontSize: theme.typography.size.caption },
+    officialText: { color: theme.colors.accentStrong, fontSize: theme.typography.size.caption },
     pressed: { opacity: 0.72 },
     modal: { backgroundColor: theme.colors.background, flex: 1 },
     modalContent: {
@@ -156,6 +156,6 @@ function createStyles(theme: AppTheme) {
       width: theme.metrics.controlHeight,
     },
     modalSubtitle: { color: theme.colors.textSecondary, fontSize: theme.typography.size.body, lineHeight: theme.spacing.lg },
-    selectedOption: { borderColor: theme.colors.borderStrong },
+    selectedOption: { borderColor: theme.colors.accentStrong },
   });
 }

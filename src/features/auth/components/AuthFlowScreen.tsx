@@ -88,7 +88,7 @@ function createStyles(theme: AppTheme) {
     footerRow: { flexDirection: 'row' },
     footerText: { color: theme.colors.textSecondary, fontSize: theme.typography.size.bodySmall },
     link: {
-      color: theme.colors.textPrimary,
+      color: theme.colors.accentStrong,
       fontSize: theme.typography.size.bodySmall,
       fontWeight: theme.typography.weight.semibold,
     },
