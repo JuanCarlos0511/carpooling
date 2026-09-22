@@ -1,0 +1,310 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-22T14:30:23.086Z",
+  "title": "Design System: Hopn",
+  "extensions": {
+    "colorMeta": {
+      "light-background": {
+        "role": "neutral",
+        "displayName": "Papel de Campus",
+        "canonical": "#F4F4F5",
+        "tonalRamp": [
+          "#242426",
+          "#444447",
+          "#67676B",
+          "#8B8B90",
+          "#AFAFB4",
+          "#D0D0D4",
+          "#E7E7E9",
+          "#F4F4F5"
+        ]
+      },
+      "light-surface": {
+        "role": "neutral",
+        "displayName": "Superficie Abierta",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "#262626",
+          "#494949",
+          "#6D6D6D",
+          "#929292",
+          "#B6B6B6",
+          "#D5D5D5",
+          "#ECECEC",
+          "#FFFFFF"
+        ]
+      },
+      "light-text": {
+        "role": "primary",
+        "displayName": "Tinta de Encuentro",
+        "canonical": "#18181B",
+        "tonalRamp": [
+          "#18181B",
+          "#343438",
+          "#535358",
+          "#737379",
+          "#94949A",
+          "#B7B7BC",
+          "#DADADD",
+          "#F4F4F5"
+        ]
+      },
+      "light-border": {
+        "role": "neutral",
+        "displayName": "Línea Suave",
+        "canonical": "#E4E4E7",
+        "tonalRamp": [
+          "#232326",
+          "#414145",
+          "#626267",
+          "#838388",
+          "#A5A5AA",
+          "#C5C5CA",
+          "#DBDBDF",
+          "#F1F1F3"
+        ]
+      },
+      "dark-background": {
+        "role": "neutral",
+        "displayName": "Noche de Ruta",
+        "canonical": "#0F0F12",
+        "tonalRamp": [
+          "#0F0F12",
+          "#2B2B30",
+          "#48484E",
+          "#67676D",
+          "#87878D",
+          "#A9A9AE",
+          "#CDCDD1",
+          "#F1F1F2"
+        ]
+      },
+      "dark-surface": {
+        "role": "neutral",
+        "displayName": "Parada Nocturna",
+        "canonical": "#16161D",
+        "tonalRamp": [
+          "#16161D",
+          "#313139",
+          "#4E4E56",
+          "#6C6C74",
+          "#8C8C93",
+          "#ADADB3",
+          "#CFCFD3",
+          "#F1F1F2"
+        ]
+      },
+      "dark-text": {
+        "role": "primary",
+        "displayName": "Luz de Encuentro",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "#262626",
+          "#494949",
+          "#6D6D6D",
+          "#929292",
+          "#B6B6B6",
+          "#D5D5D5",
+          "#ECECEC",
+          "#FFFFFF"
+        ]
+      },
+      "dark-border": {
+        "role": "neutral",
+        "displayName": "Línea Nocturna",
+        "canonical": "#262631",
+        "tonalRamp": [
+          "#1A1A22",
+          "#353540",
+          "#52525D",
+          "#70707A",
+          "#909099",
+          "#B1B1B8",
+          "#D2D2D7",
+          "#F2F2F4"
+        ]
+      },
+      "success": {
+        "role": "semantic",
+        "displayName": "Confirmación",
+        "canonical": "#22C55E",
+        "tonalRamp": [
+          "#082D16",
+          "#0D5226",
+          "#127938",
+          "#17A14A",
+          "#22C55E",
+          "#5AD984",
+          "#98EAAF",
+          "#DDF9E7"
+        ]
+      },
+      "danger": {
+        "role": "semantic",
+        "displayName": "Alerta",
+        "canonical": "#EF4444",
+        "tonalRamp": [
+          "#3A0B0B",
+          "#681414",
+          "#981E1E",
+          "#C92A2A",
+          "#EF4444",
+          "#F47A7A",
+          "#F9B0B0",
+          "#FDE5E5"
+        ]
+      },
+      "warning": {
+        "role": "semantic",
+        "displayName": "Atención",
+        "canonical": "#F59E0B",
+        "tonalRamp": [
+          "#382200",
+          "#674000",
+          "#965E02",
+          "#C77D06",
+          "#F59E0B",
+          "#F8BA51",
+          "#FBD58F",
+          "#FEF0D0"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Títulos principales de autenticación y encabezados de alto nivel."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Títulos de sección, selección y diálogos."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Contenido, explicaciones y entrada de texto."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Etiquetas breves en mayúsculas sobre campos."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Insignias y separadores de contexto."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "auth-panel-transition",
+        "value": "360ms cubic-in-out",
+        "purpose": "Cambio horizontal entre inicio de sesión y registro."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "auth-content-max",
+        "value": "440px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary-light",
+      "description": "Acción principal de alto contraste con respuesta por opacidad.",
+      "html": "<button class=\"ds-btn-primary\">CONTINUAR</button>",
+      "css": ".ds-btn-primary { height: 52px; padding: 0 16px; border: 1px solid #18181B; border-radius: 6px; background: #18181B; color: #FFFFFF; font: 500 13px system-ui; transition: opacity 160ms ease; } .ds-btn-primary:hover { opacity: .86; } .ds-btn-primary:active { opacity: .72; } .ds-btn-primary:focus-visible { outline: 2px solid #71717A; outline-offset: 2px; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline-light",
+      "description": "Acción secundaria transparente con borde neutral fuerte.",
+      "html": "<button class=\"ds-btn-outline\">CAMBIAR MODALIDAD</button>",
+      "css": ".ds-btn-outline { height: 52px; padding: 0 16px; border: 1px solid #A1A1AA; border-radius: 6px; background: transparent; color: #18181B; font: 500 13px system-ui; transition: opacity 160ms ease, border-color 160ms ease; } .ds-btn-outline:hover { border-color: #71717A; } .ds-btn-outline:active { opacity: .72; } .ds-btn-outline:focus-visible { outline: 2px solid #71717A; outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-light",
+      "description": "Campo de 52 con etiqueta externa, fondo tonal y foco por borde.",
+      "html": "<label class=\"ds-field\"><span>CORREO ELECTRÓNICO</span><input placeholder=\"nombre@correo.com\" /></label>",
+      "css": ".ds-field { display: grid; gap: 8px; color: #71717A; font: 500 11px system-ui; letter-spacing: .8px; } .ds-field input { height: 52px; padding: 0 16px; border: 1px solid #E4E4E7; border-radius: 6px; background: #F4F4F5; color: #18181B; font: 400 15px system-ui; outline: none; } .ds-field input:hover { border-color: #A1A1AA; } .ds-field input:focus-visible { border-color: #71717A; outline: 2px solid transparent; }"
+    },
+    {
+      "name": "Status Badge",
+      "kind": "chip",
+      "description": "Insignia compacta para contexto y estados verificados.",
+      "html": "<span class=\"ds-badge\"><i></i>CUENTA VERIFICADA</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border: 1px solid #E4E4E7; border-radius: 9999px; background: rgba(24,24,27,.05); color: #71717A; font: 600 10px system-ui; letter-spacing: 1.6px; } .ds-badge i { width: 4px; height: 4px; border-radius: 9999px; background: #18181B; }"
+    },
+    {
+      "name": "Authentication Card",
+      "kind": "card",
+      "refersTo": "auth-card-light",
+      "description": "Contenedor plano de formulario separado mediante tono y borde.",
+      "html": "<section class=\"ds-auth-card\"><strong>Bienvenido</strong><p>Ingresa para conectar con tu comunidad.</p></section>",
+      "css": ".ds-auth-card { padding: 16px; border: 1px solid #E4E4E7; border-radius: 10px; background: #FFFFFF; color: #18181B; font: 400 15px system-ui; } .ds-auth-card strong { display: block; margin-bottom: 8px; font-size: 17px; font-weight: 600; } .ds-auth-card p { margin: 0; color: #71717A; }"
+    },
+    {
+      "name": "Checkbox",
+      "kind": "custom",
+      "description": "Selección accesible de 24 con confirmación invertida.",
+      "html": "<label class=\"ds-checkbox\"><input type=\"checkbox\" checked /><span aria-hidden=\"true\">✓</span>Acepto los términos</label>",
+      "css": ".ds-checkbox { display: inline-flex; align-items: center; gap: 8px; color: #71717A; font: 400 13px system-ui; cursor: pointer; } .ds-checkbox input { position: absolute; opacity: 0; } .ds-checkbox span { display: grid; width: 24px; height: 24px; place-items: center; border: 1px solid #A1A1AA; border-radius: 6px; background: #18181B; color: #FFFFFF; } .ds-checkbox:focus-within span { outline: 2px solid #71717A; outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Rutas en común",
+    "overview": "Hopn debe sentirse como un punto de encuentro entre alumnos que ya comparten universidad, horarios y trayectos. Su interfaz es cercana y social, con controles cálidos y accesibles, pero conserva la precisión necesaria para tratar identidad, reservas y coordinación de viajes. La profundidad se expresa con cambios tonales, bordes finos y jerarquía espacial.",
+    "keyCharacteristics": [
+      "Cercano, social y universitario.",
+      "Contraste claro y lectura inmediata.",
+      "Controles cálidos, accesibles y de geometría contenida.",
+      "Capas planas diferenciadas por tono y borde.",
+      "Color expresivo reservado para momentos de identidad y acción."
+    ],
+    "rules": [
+      {
+        "name": "The Accent-at-the-Junction Rule",
+        "body": "El degradado futuro aparece en logo, selección y acciones principales; no cubre fondos completos ni compite con el contenido.",
+        "section": "colors"
+      },
+      {
+        "name": "The Semantic Color Rule",
+        "body": "Verde, rojo y ámbar comunican éxito, error y advertencia. No se usan como decoración.",
+        "section": "colors"
+      },
+      {
+        "name": "The Native Voice Rule",
+        "body": "Mantén la tipografía del sistema y respeta el escalado de texto; no fijes una fuente web como sustituto de la voz nativa.",
+        "section": "typography"
+      },
+      {
+        "name": "The Shared-Rhythm Rule",
+        "body": "Los elementos que describen una misma decisión usan 8; los pasos o secciones distintas usan 16 o 24.",
+        "section": "layout"
+      },
+      {
+        "name": "The Tonal-Layers Rule",
+        "body": "Cada nivel debe poder distinguirse mediante tono y borde; si necesita una sombra para ser comprensible, la jerarquía de superficie todavía no está resuelta.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do usa capas tonales y bordes para separar contenido.",
+      "Do conserva objetivos táctiles de al menos 48 en Android y 44 en iOS.",
+      "Do reserva el color semántico para estados y el degradado futuro para acentos clave.",
+      "Do prueba cada pantalla en claro y oscuro con texto ampliado.",
+      "Do permite que el contenido respire mediante la escala espacial existente."
+    ],
+    "donts": [
+      "Don't cubras fondos completos con degradados ni los uses en cada control.",
+      "Don't añadas sombras para compensar una jerarquía tonal débil.",
+      "Don't anides tarjetas sin una necesidad funcional clara.",
+      "Don't introduzcas radios, colores o tamaños fuera de las escalas documentadas.",
+      "Don't uses gris de bajo contraste sobre superficies coloreadas."
+    ]
+  }
+}
