@@ -2,7 +2,6 @@ import { ArrowLeft } from 'lucide-react-native';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Badge } from '@/components/ui/Badge';
 import { type AppTheme, useAppTheme } from '@/constants/theme';
 import {
   CompleteRegistrationForm,
@@ -40,11 +39,7 @@ export function CompleteRegistrationScreen({ onBack, ...formProps }: CompleteReg
               <Text style={styles.backText}>Datos de tu cuenta</Text>
             </Pressable>
             <View style={styles.header}>
-              <View style={styles.badge}><Badge>VERIFICACIÓN ACADÉMICA</Badge></View>
               <Text accessibilityRole="header" style={styles.title}>Completa tu registro</Text>
-              <Text style={styles.subtitle}>
-                Personaliza tu experiencia de viaje universitario seguro y conecta con tu campus.
-              </Text>
             </View>
             <CompleteRegistrationForm {...formProps} />
           </View>
@@ -70,8 +65,6 @@ function createStyles(theme: AppTheme) {
     },
     backText: { color: theme.colors.textSecondary, fontSize: theme.typography.size.bodySmall },
     header: { gap: theme.spacing.md, marginBottom: theme.spacing.xl },
-    badge: { alignSelf: 'flex-start' },
     title: { color: theme.colors.textPrimary, fontSize: theme.typography.size.title, fontWeight: theme.typography.weight.semibold },
-    subtitle: { color: theme.colors.textSecondary, fontSize: theme.typography.size.body, lineHeight: theme.spacing.lg },
   });
 }

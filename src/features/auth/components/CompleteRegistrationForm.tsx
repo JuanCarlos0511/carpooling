@@ -115,18 +115,17 @@ export function CompleteRegistrationForm({
       <View style={styles.section}>
         <View style={styles.sectionHeading}>
           <Text style={styles.label}>¿A qué institución perteneces?</Text>
-          <Text style={styles.caption}>Selecciona tu campus universitario o entidad vinculada</Text>
         </View>
         <InstitutionPicker disabled={busy || Boolean(verification)} />
         <View style={[styles.verification, verification && styles.verificationLinked]}>
           <View style={styles.verificationHeading}>
             <Text style={styles.label}>Validación institucional</Text>
-            {verification ? (
+            {verification && (
               <View accessibilityLiveRegion="polite" style={styles.linkedBadge}>
                 <CheckCircle2 color={theme.colors.textPrimary} size={theme.typography.size.bodySmall} />
                 <Text style={styles.linkedBadgeText}>Cuenta vinculada</Text>
               </View>
-            ) : <Text style={styles.caption}>Autenticación UAT</Text>}
+            )}
           </View>
 
           {verification ? (
