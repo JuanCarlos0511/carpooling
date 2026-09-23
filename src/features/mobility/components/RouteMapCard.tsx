@@ -1,5 +1,7 @@
-import { Navigation2 } from 'lucide-react-native';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Maximize2, Minimize2, Navigation2 } from 'lucide-react-native';
+import { ActivityIndicator, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { type AppTheme, useAppTheme } from '@/constants/theme';
 import type { TripWaypoint } from '@/features/mobility/data/passenger-home.data';
@@ -12,6 +14,7 @@ type Props = {
 };
 
 export function RouteMapCard({ departureTime, waypoints }: Props) {
+  const [expanded, setExpanded] = useState(false);
   const theme = useAppTheme();
   const styles = makeStyles(theme);
   const { route, status } = usePlannedRoute(waypoints.map((point) => point.coordinate));
@@ -27,19 +30,30 @@ export function RouteMapCard({ departureTime, waypoints }: Props) {
       </View>
       <View style={styles.mapContainer}>
         <RouteMap waypoints={waypoints} routeGeometry={route?.geometry ?? null} />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Ampliar mapa de la ruta"
+          onPress={() => setExpanded(true)}
+          style={styles.expandTarget}
+        >
+          <View style={styles.expandHint}>
+            <Maximize2 size={15} color={theme.colors.white} />
+            <Text style={styles.expandText}>Toca para ampliar</Text>
+          </View>
+        </Pressable>
         {status === 'loading' ? (
-          <View style={styles.statusPill}>
+          <View style={styles.statusPill} pointerEvents="none">
             <ActivityIndicator size="small" color={theme.colors.accentStrong} />
             <Text style={styles.statusText}>Trazando ruta…</Text>
           </View>
         ) : null}
         {status === 'error' ? (
-          <View style={styles.statusPill}>
+          <View style={styles.statusPill} pointerEvents="none">
             <Text style={styles.statusText}>No se pudo cargar el trayecto por calles</Text>
           </View>
         ) : null}
         {route ? (
-          <View style={styles.routeSummary}>
+          <View style={styles.routeSummary} pointerEvents="none">
             <View style={styles.summaryDot} />
             <View>
               <Text style={styles.summaryTime}>{route.durationMinutes} min</Text>
@@ -58,6 +72,36 @@ export function RouteMapCard({ departureTime, waypoints }: Props) {
           </View>
         ))}
       </View>
+      <Modal visible={expanded} animationType="slide" onRequestClose={() => setExpanded(false)}>
+        <View style={styles.fullscreen}>
+          <RouteMap waypoints={waypoints} routeGeometry={route?.geometry ?? null} expanded />
+          <SafeAreaView style={styles.fullscreenOverlay} pointerEvents="box-none">
+            <View style={styles.fullscreenHeader}>
+              <View style={styles.fullscreenTitleBlock}>
+                <Text style={styles.fullscreenEyebrow}>RUTA PLANEADA</Text>
+                <Text style={styles.fullscreenTitle} numberOfLines={1}>
+                  {waypoints[0]?.name} → {waypoints[waypoints.length - 1]?.name}
+                </Text>
+              </View>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Minimizar mapa"
+                onPress={() => setExpanded(false)}
+                style={styles.minimizeButton}
+              >
+                <Minimize2 size={21} color={theme.colors.textPrimary} />
+              </Pressable>
+            </View>
+            <View style={styles.fullscreenSpacer} pointerEvents="none" />
+            <View style={styles.fullscreenFooter}>
+              <Text style={styles.fullscreenRoute} numberOfLines={2}>
+                {waypoints.map((point) => point.name).join('  →  ')}
+              </Text>
+              <Text style={styles.fullscreenHelp}>Arrastra o pellizca el mapa para explorar la ruta</Text>
+            </View>
+          </SafeAreaView>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -71,6 +115,10 @@ function makeStyles(theme: AppTheme) {
     title: { color: colors.textPrimary, fontSize: typography.size.bodySmall, fontWeight: typography.weight.bold, letterSpacing: 0.6 },
     departure: { color: colors.textSecondary, fontSize: typography.size.bodySmall },
     mapContainer: { height: 250, backgroundColor: '#171C25', overflow: 'hidden' },
+    expandTarget: { ...StyleSheet.absoluteFill, alignItems: 'flex-start', justifyContent: 'flex-end', padding: spacing.sm },
+    expandHint: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, backgroundColor: 'rgba(16, 17, 20, 0.86)', borderRadius: borderRadius.sm,
+      paddingHorizontal: spacing.sm, paddingVertical: spacing.xs },
+    expandText: { color: colors.white, fontSize: typography.size.bodySmall, fontWeight: typography.weight.semibold },
     statusPill: { position: 'absolute', left: spacing.sm, top: spacing.sm, maxWidth: '64%', alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center',
       gap: spacing.sm, backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, borderRadius: borderRadius.sm,
       paddingHorizontal: spacing.sm, paddingVertical: spacing.xs },
@@ -89,5 +137,20 @@ function makeStyles(theme: AppTheme) {
     originText: { color: colors.accentStrong },
     destinationText: { color: colors.primary },
     stopName: { color: colors.textSecondary, fontSize: typography.size.bodySmall, lineHeight: 17 },
+    fullscreen: { flex: 1, backgroundColor: colors.background },
+    fullscreenOverlay: { ...StyleSheet.absoluteFill, justifyContent: 'space-between' },
+    fullscreenHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, margin: spacing.md, padding: spacing.sm,
+      borderRadius: borderRadius.lg, backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1 },
+    fullscreenTitleBlock: { flex: 1, minWidth: 0 },
+    fullscreenEyebrow: { color: colors.accentStrong, fontSize: typography.size.label, fontWeight: typography.weight.bold,
+      letterSpacing: typography.letterSpacing.label },
+    fullscreenTitle: { color: colors.textPrimary, fontSize: typography.size.subtitle, fontWeight: typography.weight.bold, marginTop: 3 },
+    minimizeButton: { width: 46, height: 46, borderRadius: borderRadius.md, backgroundColor: colors.surfaceElevated,
+      borderColor: colors.border, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+    fullscreenSpacer: { flex: 1 },
+    fullscreenFooter: { margin: spacing.md, padding: spacing.md, borderRadius: borderRadius.lg, backgroundColor: colors.surface,
+      borderColor: colors.border, borderWidth: 1 },
+    fullscreenRoute: { color: colors.textPrimary, fontSize: typography.size.bodySmall, fontWeight: typography.weight.semibold },
+    fullscreenHelp: { color: colors.textSecondary, fontSize: typography.size.bodySmall, marginTop: spacing.xs },
   });
 }
