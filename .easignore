@@ -1,0 +1,22 @@
+node_modules/
+.expo/
+dist/
+web-build/
+android/
+ios/
+.env
+.env.*
+!.env.example
+npm-debug.log*
+expo-env.d.ts
+
+# Local assistant and design files are not needed to compile the app.
+.git/
+.agent/
+.agents/
+.codex/
+.gemini/
+.impeccable/
+DESIGN.md
+PRODUCT.md
+AGENTS.md

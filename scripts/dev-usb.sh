@@ -83,11 +83,11 @@ fi
 ADB_SERIAL="$(adb get-serialno)"
 echo "✓ Android conectado: $ADB_SERIAL"
 if [[ "$ADB_SERIAL" == *:* ]]; then
-  echo "Aviso: ADB está usando Wi-Fi. Para evitar la red del campus, conecta y autoriza USB."
+  echo "✓ ADB conectado por Wi-Fi"
 fi
 
-if ! adb shell pm path host.exp.exponent >/dev/null 2>&1; then
-  echo "Error: Expo Go no está instalado en el teléfono." >&2
+if ! adb shell pm path com.hopn.carpooling >/dev/null 2>&1; then
+  echo "Error: instala primero la build de desarrollo de Carpooling en el teléfono." >&2
   exit 1
 fi
 
@@ -110,15 +110,15 @@ echo "✓ ADB reverse: Metro 8081 y backend 3200"
     if curl -fsS http://127.0.0.1:8081/status >/dev/null 2>&1; then
       adb shell am start \
         -a android.intent.action.VIEW \
-        -d exp://127.0.0.1:8081 \
-        host.exp.exponent >/dev/null
-      echo "✓ Proyecto abierto en Expo Go"
+        -d 'exp+carpooling://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081' \
+        com.hopn.carpooling >/dev/null
+      echo "✓ Proyecto abierto en la build de desarrollo"
       exit 0
     fi
     sleep 1
   done
 
-  echo "Aviso: Metro no respondió en 60 segundos; abre exp://127.0.0.1:8081 manualmente." >&2
+  echo "Aviso: Metro no respondió en 60 segundos; abre Carpooling manualmente." >&2
 ) &
 
 echo "Iniciando Metro con Fast Refresh..."
@@ -126,4 +126,4 @@ echo "Presiona Ctrl+C para detener esta sesión."
 cd "$APP_DIR"
 EXPO_PUBLIC_API_URL=http://127.0.0.1:3200 \
   REACT_NATIVE_PACKAGER_HOSTNAME=127.0.0.1 \
-  npx expo start --lan
+  npx expo start --dev-client --lan
