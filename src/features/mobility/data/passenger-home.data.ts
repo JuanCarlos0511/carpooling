@@ -25,14 +25,14 @@ export const passengerHomeData = {
     contribution: 60,
     currency: 'MXN',
     departureTime: '18:30',
-    description: 'Saliendo a Campus Sur a las 18:30 hrs. Llevo playlist de indie rock y café recién hecho ☕. ¡Tengo 2 lugares libres para viajar relajados!',
+    description: 'Salgo del centro de Altamira rumbo a la UAT Campus Sur a las 18:30 hrs. Paso por Plaza Herradura y tengo 2 lugares libres. ¡Vamos juntos!',
     carCapacity: 4,
     freeSeats: 2,
     occupiedSeats: 2,
     waypoints: [
-      { id: 'origin', name: 'Parque España', detail: 'Salida', coordinate: [-99.1685, 19.4137] },
-      { id: 'stop-1', name: 'WTC Insurgentes', detail: 'Parada 1', coordinate: [-99.1720, 19.3950] },
-      { id: 'destination', name: 'Campus Univ. Sur', detail: 'Destino', coordinate: [-99.1800, 19.3030] },
+      { id: 'origin', name: 'Palacio Municipal de Altamira', detail: 'Salida · Altamira', coordinate: [-97.9367913, 22.3913033] },
+      { id: 'stop-1', name: 'Plaza Herradura', detail: 'Parada · Tampico', coordinate: [-97.875046, 22.271906] },
+      { id: 'destination', name: 'UAT Campus Sur', detail: 'Destino · Tampico', coordinate: [-97.863252, 22.276037] },
     ] satisfies TripWaypoint[],
   },
 } as const;
