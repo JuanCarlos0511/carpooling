@@ -1,2 +1,5 @@
-import { ModeHome } from '@/features/mobility/components/ModeHome';
-export default function PassengerScreen() { return <ModeHome role="passenger" />; }
+import { PassengerHome } from '@/features/mobility/components/PassengerHome';
+
+export default function PassengerScreen() {
+  return <PassengerHome />;
+}
