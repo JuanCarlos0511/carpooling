@@ -1,13 +1,18 @@
+import Constants from 'expo-constants';
 import { View } from 'react-native';
 
 import { useAppTheme } from '@/constants/theme';
 import type { TripWaypoint } from '@/features/mobility/data/passenger-home.data';
 import type { RouteGeometry } from '@/features/mobility/services/route.service';
+import { RouteMapFallback } from '@/features/mobility/components/RouteMapFallback';
 
 type Props = { waypoints: readonly TripWaypoint[]; routeGeometry: RouteGeometry | null; expanded?: boolean };
 
 export function RouteMap({ waypoints, routeGeometry, expanded = false }: Props) {
   const theme = useAppTheme();
+
+  // Expo Go no incluye el módulo nativo MapLibre.
+  if (Constants.appOwnership === 'expo') return <RouteMapFallback waypoints={waypoints} routeGeometry={routeGeometry} />;
 
   const MapLibre = require('@maplibre/maplibre-react-native') as typeof import('@maplibre/maplibre-react-native');
   const coordinates = waypoints.map((point) => point.coordinate);

@@ -74,21 +74,46 @@ require_command adb
 require_command curl
 require_command npm
 
-if ! adb get-state >/dev/null 2>&1; then
-  echo "Error: ADB no detecta un teléfono autorizado." >&2
-  echo "Conecta el cable, habilita Depuración USB y acepta la autorización en Android." >&2
-  exit 1
+if [[ -z "${ADB_SERIAL:-}" ]]; then
+  mapfile -t CONNECTED_DEVICES < <(adb devices | awk 'NR > 1 && $2 == "device" { print $1 }')
+  if ((${#CONNECTED_DEVICES[@]} == 0)); then
+    echo "Error: ADB no detecta un teléfono autorizado." >&2
+    echo "Conéctalo por Wi-Fi y verifica que aparezca como 'device' con: adb devices -l" >&2
+    exit 1
+  elif ((${#CONNECTED_DEVICES[@]} > 1)); then
+    echo "Error: hay varios dispositivos ADB. Elige uno con ADB_SERIAL=..." >&2
+    printf '  %s\n' "${CONNECTED_DEVICES[@]}" >&2
+    exit 1
+  fi
+  ADB_SERIAL="${CONNECTED_DEVICES[0]}"
 fi
 
-ADB_SERIAL="$(adb get-serialno)"
+if ! adb -s "$ADB_SERIAL" get-state 2>/dev/null | grep -qx device; then
+  echo "Error: el dispositivo '$ADB_SERIAL' no está conectado o autorizado en ADB." >&2
+  exit 1
+fi
 echo "✓ Android conectado: $ADB_SERIAL"
 if [[ "$ADB_SERIAL" == *:* ]]; then
   echo "✓ ADB conectado por Wi-Fi"
 fi
 
-if ! adb shell pm path com.hopn.carpooling >/dev/null 2>&1; then
-  echo "Error: instala primero la build de desarrollo de Carpooling en el teléfono." >&2
-  exit 1
+EXPO_CLIENT="${EXPO_CLIENT:-dev-client}"
+if [[ "$EXPO_CLIENT" == "expo-go" ]]; then
+  if ! adb -s "$ADB_SERIAL" shell pm path host.exp.exponent >/dev/null 2>&1; then
+    echo "Error: Expo Go no está instalado en el teléfono." >&2
+    exit 1
+  fi
+  APP_PACKAGE="host.exp.exponent"
+  APP_URL="exp://127.0.0.1:8081"
+  EXPO_FLAG="--go"
+else
+  if ! adb -s "$ADB_SERIAL" shell pm path com.hopn.carpooling >/dev/null 2>&1; then
+    echo "Error: instala primero la build de desarrollo de Carpooling en el teléfono." >&2
+    exit 1
+  fi
+  APP_PACKAGE="com.hopn.carpooling"
+  APP_URL='exp+carpooling://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081'
+  EXPO_FLAG="--dev-client"
 fi
 
 start_service_if_needed \
@@ -101,18 +126,18 @@ start_service_if_needed \
   "$WORKSPACE_DIR/backend" \
   "http://127.0.0.1:3200/health"
 
-adb reverse tcp:8081 tcp:8081 >/dev/null
-adb reverse tcp:3200 tcp:3200 >/dev/null
+adb -s "$ADB_SERIAL" reverse tcp:8081 tcp:8081 >/dev/null
+adb -s "$ADB_SERIAL" reverse tcp:3200 tcp:3200 >/dev/null
 echo "✓ ADB reverse: Metro 8081 y backend 3200"
 
 (
   for _ in {1..60}; do
     if curl -fsS http://127.0.0.1:8081/status >/dev/null 2>&1; then
-      adb shell am start \
+      adb -s "$ADB_SERIAL" shell am start \
         -a android.intent.action.VIEW \
-        -d 'exp+carpooling://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081' \
-        com.hopn.carpooling >/dev/null
-      echo "✓ Proyecto abierto en la build de desarrollo"
+        -d "$APP_URL" \
+        "$APP_PACKAGE" >/dev/null
+      echo "✓ Proyecto abierto en $APP_PACKAGE"
       exit 0
     fi
     sleep 1
@@ -126,4 +151,4 @@ echo "Presiona Ctrl+C para detener esta sesión."
 cd "$APP_DIR"
 EXPO_PUBLIC_API_URL=http://127.0.0.1:3200 \
   REACT_NATIVE_PACKAGER_HOSTNAME=127.0.0.1 \
-  npx expo start --dev-client --lan
+  npx expo start "$EXPO_FLAG" --lan

@@ -35,6 +35,7 @@
   "scripts": {
     "start": "expo start",
     "start:adb": "bash ./scripts/dev-usb.sh",
+    "start:expo-go": "EXPO_CLIENT=expo-go bash ./scripts/dev-usb.sh",
     "start:usb": "bash ./scripts/dev-usb.sh",
     "start:tunnel": "expo start --tunnel",
     "android": "expo start --android",
