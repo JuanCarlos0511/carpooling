@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
-import { CarFront, LogOut, MapPin, Repeat2, Route, ShieldCheck, UserRound, UsersRound } from 'lucide-react-native';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { CarFront, LogOut, MapPin, Repeat2, Route, ShieldCheck, UserPlus, UserRound, UsersRound } from 'lucide-react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GradientFill } from '@/components/ui/GradientFill';
@@ -160,6 +160,14 @@ export function PassengerHome() {
               );
             })}
           </View>
+          <Pressable accessibilityRole="button" accessibilityLabel="Pedir un lugar"
+            disabled={featuredTrip.freeSeats < 1}
+            onPress={() => Alert.alert('Publicación de ejemplo', 'Este viaje de muestra aún no permite solicitar lugares.')}
+            style={({ pressed }) => [styles.requestButton, pressed && styles.requestButtonPressed,
+              featuredTrip.freeSeats < 1 && styles.requestButtonDisabled]}>
+            <UserPlus size={20} color={theme.colors.white} strokeWidth={2.3} />
+            <Text style={styles.requestButtonText}>Pedir un lugar</Text>
+          </Pressable>
           <View style={styles.feedFooter}>
             <ShieldCheck size={17} color={theme.colors.textMuted} />
             <Text style={styles.feedFooterText}>Comunidad universitaria verificada</Text>
@@ -236,6 +244,11 @@ function makeStyles(theme: AppTheme) {
     seatFree: { backgroundColor: colors.accentSoft, borderColor: colors.accentStrong, borderStyle: 'dashed' },
     seatSlash: { position: 'absolute', width: 29, height: 2, borderRadius: 1, backgroundColor: colors.textMuted, transform: [{ rotate: '-45deg' }] },
     seatCaption: { color: colors.textMuted, fontSize: typography.size.caption },
+    requestButton: { minHeight: 52, marginTop: spacing.lg, borderRadius: borderRadius.md, backgroundColor: colors.primary,
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
+    requestButtonPressed: { opacity: 0.82 },
+    requestButtonDisabled: { opacity: 0.45 },
+    requestButtonText: { color: colors.white, fontSize: typography.size.body, fontWeight: typography.weight.bold },
     feedFooter: { borderTopColor: colors.border, borderTopWidth: 1, marginTop: spacing.lg, paddingTop: spacing.md,
       flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
     feedFooterText: { color: colors.textMuted, fontSize: typography.size.bodySmall, flex: 1 },
