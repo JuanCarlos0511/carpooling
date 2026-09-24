@@ -1,4 +1,6 @@
 import Constants from 'expo-constants';
+import { useEffect, useRef } from 'react';
+import type { CameraRef } from '@maplibre/maplibre-react-native';
 import { useAppTheme } from '@/constants/theme';
 import type { TripWaypoint } from '@/features/mobility/data/passenger-home.data';
 import type { RouteGeometry } from '@/features/mobility/services/route.service';
@@ -13,10 +15,22 @@ type Props = {
   selectedWaypointId?: string | null;
   onWaypointPress?: (id: string) => void;
   onMapPress?: () => void;
+  resetViewToken?: number;
 };
 
-export function RouteMap({ waypoints, routeGeometry, expanded = false, selectedWaypointId, onWaypointPress, onMapPress }: Props) {
+const TAMPICO_CENTER: [number, number] = [-97.8645, 22.2553];
+const TAMPICO_ZOOM = 12;
+
+export function RouteMap({ waypoints, routeGeometry, expanded = false, selectedWaypointId, onWaypointPress, onMapPress,
+  resetViewToken = 0 }: Props) {
   const theme = useAppTheme();
+  const cameraRef = useRef<CameraRef>(null);
+
+  useEffect(() => {
+    if (resetViewToken > 0) {
+      cameraRef.current?.easeTo({ center: TAMPICO_CENTER, zoom: TAMPICO_ZOOM, bearing: 0, pitch: 0, duration: 450 });
+    }
+  }, [resetViewToken]);
 
   // Expo Go no incluye el módulo nativo MapLibre.
   if (Constants.appOwnership === 'expo') return <RouteMapFallback waypoints={waypoints} routeGeometry={routeGeometry}
@@ -42,7 +56,7 @@ export function RouteMap({ waypoints, routeGeometry, expanded = false, selectedW
       style={{ flex: 1 }} logo={false} attribution attributionPosition={{ bottom: 4, right: 4 }}
       compass={false} dragPan touchZoom doubleTapZoom touchRotate={false} touchPitch={false}
       onPress={onMapPress}>
-      <MapLibre.Camera initialViewState={{ bounds, padding: expanded
+      <MapLibre.Camera ref={cameraRef} initialViewState={{ bounds, padding: expanded
         ? { top: 100, right: 44, bottom: 140, left: 44 }
         : { top: 20, right: 24, bottom: 20, left: 24 } }} />
       {routeGeometry ? (

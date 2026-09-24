@@ -4,6 +4,7 @@ import { RouteMapFallback } from '@/features/mobility/components/RouteMapFallbac
 
 // TypeScript and web use this preview; Metro selects .native on Android and iOS.
 export function RouteMap(props: { waypoints: readonly TripWaypoint[]; routeGeometry: RouteGeometry | null; expanded?: boolean;
-  selectedWaypointId?: string | null; onWaypointPress?: (id: string) => void; onMapPress?: () => void }) {
+  selectedWaypointId?: string | null; onWaypointPress?: (id: string) => void; onMapPress?: () => void;
+  resetViewToken?: number }) {
   return <RouteMapFallback {...props} />;
 }

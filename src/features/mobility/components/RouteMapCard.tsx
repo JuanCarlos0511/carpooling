@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Maximize2, Minimize2, Navigation2 } from 'lucide-react-native';
+import { Maximize2, Minimize2, Navigation2, RotateCcw } from 'lucide-react-native';
 import { ActivityIndicator, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -16,12 +16,17 @@ type Props = {
 export function RouteMapCard({ departureTime, waypoints }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [selectedWaypointId, setSelectedWaypointId] = useState<string | null>(null);
+  const [resetViewToken, setResetViewToken] = useState(0);
   const theme = useAppTheme();
   const styles = makeStyles(theme);
   const { route, status } = usePlannedRoute(waypoints.map((point) => point.coordinate));
   const closeMap = () => {
     setExpanded(false);
     setSelectedWaypointId(null);
+  };
+  const resetMap = () => {
+    setSelectedWaypointId(null);
+    setResetViewToken((current) => current + 1);
   };
 
   return (
@@ -35,6 +40,7 @@ export function RouteMapCard({ departureTime, waypoints }: Props) {
       </View>
       <View style={styles.mapContainer}>
         <RouteMap waypoints={waypoints} routeGeometry={route?.geometry ?? null}
+          resetViewToken={resetViewToken}
           onMapPress={() => setExpanded(true)}
           onWaypointPress={(id) => { setSelectedWaypointId(id); setExpanded(true); }} />
         <Pressable
@@ -47,6 +53,10 @@ export function RouteMapCard({ departureTime, waypoints }: Props) {
             <Maximize2 size={15} color={theme.colors.white} />
             <Text style={styles.expandText}>Toca para ampliar</Text>
           </View>
+        </Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel="Volver al centro de Tampico"
+          onPress={resetMap} style={[styles.resetButton, styles.compactResetButton]}>
+          <RotateCcw size={20} color={theme.colors.textPrimary} />
         </Pressable>
         {status === 'loading' ? (
           <View style={styles.statusPill} pointerEvents="none">
@@ -82,6 +92,7 @@ export function RouteMapCard({ departureTime, waypoints }: Props) {
       <Modal visible={expanded} animationType="slide" onRequestClose={closeMap}>
         <View style={styles.fullscreen}>
           <RouteMap waypoints={waypoints} routeGeometry={route?.geometry ?? null} expanded
+            resetViewToken={resetViewToken}
             selectedWaypointId={selectedWaypointId}
             onWaypointPress={(id) => setSelectedWaypointId((current) => current === id ? null : id)} />
           <SafeAreaView style={styles.fullscreenOverlay} pointerEvents="box-none">
@@ -102,6 +113,10 @@ export function RouteMapCard({ departureTime, waypoints }: Props) {
               </Pressable>
             </View>
             <View style={styles.fullscreenSpacer} pointerEvents="none" />
+            <Pressable accessibilityRole="button" accessibilityLabel="Volver al centro de Tampico"
+              onPress={resetMap} style={[styles.resetButton, styles.fullscreenResetButton]}>
+              <RotateCcw size={21} color={theme.colors.textPrimary} />
+            </Pressable>
             <View style={styles.fullscreenFooter}>
               <Text style={styles.fullscreenRoute} numberOfLines={2}>
                 {waypoints.map((point) => point.name).join('  →  ')}
@@ -128,6 +143,9 @@ function makeStyles(theme: AppTheme) {
     expandHint: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, backgroundColor: 'rgba(16, 17, 20, 0.86)', borderRadius: borderRadius.sm,
       paddingHorizontal: spacing.sm, paddingVertical: spacing.xs },
     expandText: { color: colors.white, fontSize: typography.size.bodySmall, fontWeight: typography.weight.semibold },
+    resetButton: { width: 44, height: 44, borderRadius: borderRadius.md, backgroundColor: colors.surface,
+      borderColor: colors.border, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+    compactResetButton: { position: 'absolute', right: spacing.sm, bottom: spacing.sm },
     statusPill: { position: 'absolute', left: spacing.sm, top: spacing.sm, maxWidth: '64%', alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center',
       gap: spacing.sm, backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, borderRadius: borderRadius.sm,
       paddingHorizontal: spacing.sm, paddingVertical: spacing.xs },
@@ -157,6 +175,7 @@ function makeStyles(theme: AppTheme) {
     minimizeButton: { width: 46, height: 46, borderRadius: borderRadius.md, backgroundColor: colors.surfaceElevated,
       borderColor: colors.border, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
     fullscreenSpacer: { flex: 1 },
+    fullscreenResetButton: { alignSelf: 'flex-end', marginHorizontal: spacing.md },
     fullscreenFooter: { margin: spacing.md, padding: spacing.md, borderRadius: borderRadius.lg, backgroundColor: colors.surface,
       borderColor: colors.border, borderWidth: 1 },
     fullscreenRoute: { color: colors.textPrimary, fontSize: typography.size.bodySmall, fontWeight: typography.weight.semibold },
