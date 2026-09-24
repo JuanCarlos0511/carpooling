@@ -15,9 +15,14 @@ type Props = {
 
 export function RouteMapCard({ departureTime, waypoints }: Props) {
   const [expanded, setExpanded] = useState(false);
+  const [selectedWaypointId, setSelectedWaypointId] = useState<string | null>(null);
   const theme = useAppTheme();
   const styles = makeStyles(theme);
   const { route, status } = usePlannedRoute(waypoints.map((point) => point.coordinate));
+  const closeMap = () => {
+    setExpanded(false);
+    setSelectedWaypointId(null);
+  };
 
   return (
     <View style={styles.card}>
@@ -29,7 +34,9 @@ export function RouteMapCard({ departureTime, waypoints }: Props) {
         <Text style={styles.departure}>Salida {departureTime} hrs</Text>
       </View>
       <View style={styles.mapContainer}>
-        <RouteMap waypoints={waypoints} routeGeometry={route?.geometry ?? null} />
+        <RouteMap waypoints={waypoints} routeGeometry={route?.geometry ?? null}
+          onMapPress={() => setExpanded(true)}
+          onWaypointPress={(id) => { setSelectedWaypointId(id); setExpanded(true); }} />
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Ampliar mapa de la ruta"
@@ -72,9 +79,11 @@ export function RouteMapCard({ departureTime, waypoints }: Props) {
           </View>
         ))}
       </View>
-      <Modal visible={expanded} animationType="slide" onRequestClose={() => setExpanded(false)}>
+      <Modal visible={expanded} animationType="slide" onRequestClose={closeMap}>
         <View style={styles.fullscreen}>
-          <RouteMap waypoints={waypoints} routeGeometry={route?.geometry ?? null} expanded />
+          <RouteMap waypoints={waypoints} routeGeometry={route?.geometry ?? null} expanded
+            selectedWaypointId={selectedWaypointId}
+            onWaypointPress={(id) => setSelectedWaypointId((current) => current === id ? null : id)} />
           <SafeAreaView style={styles.fullscreenOverlay} pointerEvents="box-none">
             <View style={styles.fullscreenHeader}>
               <View style={styles.fullscreenTitleBlock}>
@@ -86,7 +95,7 @@ export function RouteMapCard({ departureTime, waypoints }: Props) {
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Minimizar mapa"
-                onPress={() => setExpanded(false)}
+                onPress={closeMap}
                 style={styles.minimizeButton}
               >
                 <Minimize2 size={21} color={theme.colors.textPrimary} />
@@ -97,7 +106,7 @@ export function RouteMapCard({ departureTime, waypoints }: Props) {
               <Text style={styles.fullscreenRoute} numberOfLines={2}>
                 {waypoints.map((point) => point.name).join('  →  ')}
               </Text>
-              <Text style={styles.fullscreenHelp}>Arrastra o pellizca el mapa para explorar la ruta</Text>
+              <Text style={styles.fullscreenHelp}>Toca una parada para ver su hora y estado. Arrastra o pellizca para explorar.</Text>
             </View>
           </SafeAreaView>
         </View>
@@ -115,7 +124,7 @@ function makeStyles(theme: AppTheme) {
     title: { color: colors.textPrimary, fontSize: typography.size.bodySmall, fontWeight: typography.weight.bold, letterSpacing: 0.6 },
     departure: { color: colors.textSecondary, fontSize: typography.size.bodySmall },
     mapContainer: { height: 250, backgroundColor: '#171C25', overflow: 'hidden' },
-    expandTarget: { ...StyleSheet.absoluteFill, alignItems: 'flex-start', justifyContent: 'flex-end', padding: spacing.sm },
+    expandTarget: { position: 'absolute', left: spacing.sm, bottom: spacing.sm },
     expandHint: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, backgroundColor: 'rgba(16, 17, 20, 0.86)', borderRadius: borderRadius.sm,
       paddingHorizontal: spacing.sm, paddingVertical: spacing.xs },
     expandText: { color: colors.white, fontSize: typography.size.bodySmall, fontWeight: typography.weight.semibold },

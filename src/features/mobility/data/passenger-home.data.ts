@@ -5,6 +5,8 @@ export type TripWaypoint = {
   name: string;
   detail: string;
   coordinate: Coordinate;
+  arrivalTime: string;
+  status: 'En camino' | 'Completada';
 };
 
 export const passengerHomeData = {
@@ -30,9 +32,9 @@ export const passengerHomeData = {
     freeSeats: 2,
     occupiedSeats: 2,
     waypoints: [
-      { id: 'origin', name: 'Palacio Municipal de Altamira', detail: 'Salida · Altamira', coordinate: [-97.9367913, 22.3913033] },
-      { id: 'stop-1', name: 'Plaza Herradura', detail: 'Parada · Tampico', coordinate: [-97.875046, 22.271906] },
-      { id: 'destination', name: 'UAT Campus Sur', detail: 'Destino · Tampico', coordinate: [-97.863252, 22.276037] },
+      { id: 'origin', name: 'Palacio Municipal de Altamira', detail: 'Salida · Altamira', coordinate: [-97.9367913, 22.3913033], arrivalTime: '18:30', status: 'Completada' },
+      { id: 'stop-1', name: 'Plaza Herradura', detail: 'Parada · Tampico', coordinate: [-97.875046, 22.271906], arrivalTime: '19:00', status: 'En camino' },
+      { id: 'destination', name: 'UAT Campus Sur', detail: 'Destino · Tampico', coordinate: [-97.863252, 22.276037], arrivalTime: '19:15', status: 'En camino' },
     ] satisfies TripWaypoint[],
   },
 } as const;
