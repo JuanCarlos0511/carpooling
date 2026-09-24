@@ -165,6 +165,7 @@ export function PassengerHome() {
             onPress={() => Alert.alert('Publicación de ejemplo', 'Este viaje de muestra aún no permite solicitar lugares.')}
             style={({ pressed }) => [styles.requestButton, pressed && styles.requestButtonPressed,
               featuredTrip.freeSeats < 1 && styles.requestButtonDisabled]}>
+            <GradientFill dominantStart />
             <UserPlus size={20} color={theme.colors.white} strokeWidth={2.3} />
             <Text style={styles.requestButtonText}>Pedir un lugar</Text>
           </Pressable>
@@ -244,8 +245,8 @@ function makeStyles(theme: AppTheme) {
     seatFree: { backgroundColor: colors.accentSoft, borderColor: colors.accentStrong, borderStyle: 'dashed' },
     seatSlash: { position: 'absolute', width: 29, height: 2, borderRadius: 1, backgroundColor: colors.textMuted, transform: [{ rotate: '-45deg' }] },
     seatCaption: { color: colors.textMuted, fontSize: typography.size.caption },
-    requestButton: { minHeight: 52, marginTop: spacing.lg, borderRadius: borderRadius.md, backgroundColor: colors.primary,
-      flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
+    requestButton: { minHeight: 52, marginTop: spacing.lg, borderRadius: borderRadius.md, backgroundColor: colors.accent,
+      overflow: 'hidden', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
     requestButtonPressed: { opacity: 0.82 },
     requestButtonDisabled: { opacity: 0.45 },
     requestButtonText: { color: colors.white, fontSize: typography.size.body, fontWeight: typography.weight.bold },
