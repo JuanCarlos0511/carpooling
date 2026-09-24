@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
-import { CarFront, LogOut, MapPin, Repeat2, Route, ShieldCheck, UsersRound } from 'lucide-react-native';
+import { CarFront, LogOut, MapPin, Repeat2, Route, ShieldCheck, UserRound, UsersRound } from 'lucide-react-native';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -152,7 +152,8 @@ export function PassengerHome() {
               return (
                 <View key={index} style={styles.seatItem}>
                   <View style={[styles.seatIcon, occupied ? styles.seatOccupied : styles.seatFree]}>
-                    <Text style={[styles.seatGlyph, occupied ? styles.seatGlyphOccupied : styles.seatGlyphFree]}>{occupied ? '●' : '+'}</Text>
+                    <UserRound size={21} strokeWidth={2.1} color={occupied ? theme.colors.textMuted : theme.colors.accentStrong} />
+                    {occupied ? <View style={styles.seatSlash} /> : null}
                   </View>
                   <Text style={styles.seatCaption}>{occupied ? (index === 0 ? 'Cond.' : 'Ocup.') : 'Libre'}</Text>
                 </View>
@@ -233,9 +234,7 @@ function makeStyles(theme: AppTheme) {
     seatIcon: { width: 33, height: 37, borderRadius: borderRadius.sm, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
     seatOccupied: { backgroundColor: colors.surfaceElevated, borderColor: colors.borderStrong },
     seatFree: { backgroundColor: colors.accentSoft, borderColor: colors.accentStrong, borderStyle: 'dashed' },
-    seatGlyph: { fontSize: 19, fontWeight: typography.weight.bold },
-    seatGlyphOccupied: { color: colors.textMuted },
-    seatGlyphFree: { color: colors.accentStrong },
+    seatSlash: { position: 'absolute', width: 29, height: 2, borderRadius: 1, backgroundColor: colors.textMuted, transform: [{ rotate: '-45deg' }] },
     seatCaption: { color: colors.textMuted, fontSize: typography.size.caption },
     feedFooter: { borderTopColor: colors.border, borderTopWidth: 1, marginTop: spacing.lg, paddingTop: spacing.md,
       flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
