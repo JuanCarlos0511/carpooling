@@ -104,7 +104,7 @@ export function RegisterForm() {
         title="Siguiente"
       />
       <AuthSeparator>o regístrate con</AuthSeparator>
-      <SocialButtons onPress={socialMessage} />
+      <SocialButtons includeApple={false} onPress={socialMessage} />
     </View>
   );
 }
