@@ -30,8 +30,8 @@ const lightColors = {
   overlay: 'rgba(20, 184, 166, 0.08)',
   pattern: 'rgba(20, 184, 166, 0.08)',
   dangerSurface: 'rgba(239, 68, 68, 0.08)',
-  disabledBackground: '#596461',
-  disabledForeground: '#E2E7E6',
+  disabledBackground: '#D9ECE8',
+  disabledForeground: '#50716B',
 } as const;
 
 const darkColors = {
@@ -60,7 +60,7 @@ const darkColors = {
 } as const;
 
 const lightGradients = {
-  primary: { start: '#14B8A6', end: '#0EA5E9', overlay: 'transparent' },
+  primary: { start: '#3BCBB9', end: '#40B9ED', overlay: 'transparent' },
 } as const;
 
 const darkGradients = {

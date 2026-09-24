@@ -38,7 +38,7 @@ export function Button({
     : variant === 'primary'
       ? theme.colors.primaryForeground
       : theme.colors.textPrimary;
-  const renderedIcon = variant === 'primary' && isValidElement(icon)
+  const renderedIcon = (variant === 'primary' || disabled) && isValidElement(icon)
     ? cloneElement(icon as ReactElement<{ color?: string }>, { color: foreground })
     : icon;
 
@@ -51,7 +51,7 @@ export function Button({
         styles.base,
         styles[variant],
         pressed && styles.pressed,
-        disabled && styles.buttonDisabled,
+        disabled && (variant === 'primary' ? styles.primaryDisabled : styles.secondaryDisabled),
         loading && variant !== 'primary' && styles.disabled,
         style,
       ]}
@@ -81,8 +81,13 @@ function createStyles(theme: AppTheme) {
       borderColor: theme.colors.transparent,
       borderWidth: theme.spacing.none,
     },
-    buttonDisabled: {
+    primaryDisabled: {
       backgroundColor: theme.colors.disabledBackground,
+      borderColor: theme.colors.border,
+      borderWidth: theme.metrics.borderWidth,
+    },
+    secondaryDisabled: {
+      backgroundColor: theme.dark ? theme.colors.disabledBackground : theme.colors.inputBackground,
       borderColor: theme.colors.border,
       borderWidth: theme.metrics.borderWidth,
     },

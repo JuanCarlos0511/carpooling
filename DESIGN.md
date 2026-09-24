@@ -10,8 +10,8 @@ colors:
   light-text-muted: "#718580"
   light-border: "#D5E5E2"
   light-border-strong: "#8AA9A3"
-  light-accent-start: "#14B8A6"
-  light-accent-end: "#0EA5E9"
+  light-accent-start: "#3BCBB9"
+  light-accent-end: "#40B9ED"
   light-accent-strong: "#087F75"
   dark-background: "#101114"
   dark-surface: "#181A1D"
@@ -23,7 +23,7 @@ colors:
   dark-border-strong: "#555A64"
   dark-accent-start: "#FFA263"
   dark-accent-end: "#703297"
-  disabled-light: "#596461"
+  disabled-light: "#D9ECE8"
   disabled-dark: "#2A2D33"
   success: "#22C55E"
   danger: "#EF4444"
@@ -125,7 +125,7 @@ components:
 
 Hopn debe sentirse como un punto de encuentro entre alumnos que ya comparten universidad, horarios y trayectos. Su interfaz es cercana y social, con controles cálidos y accesibles, pero conserva la precisión necesaria para tratar identidad, reservas y coordinación de viajes.
 
-El sistema usa una base neutral teñida suavemente en modo claro y gris grafito en modo oscuro. Un degradado aqua a azul (`#14B8A6` → `#0EA5E9`) identifica el modo claro; el modo oscuro usa naranja a violeta (`#FFA263` → `#703297`). Los degradados se reservan para logo, selección y acciones principales.
+El sistema usa una base neutral teñida suavemente en modo claro y gris grafito en modo oscuro. Un degradado aqua a azul (`#3BCBB9` → `#40B9ED`) identifica el modo claro; el modo oscuro usa naranja a violeta (`#FFA263` → `#703297`). Los degradados se reservan para logo, selección y acciones principales.
 
 La profundidad se expresa con cambios tonales, bordes finos y jerarquía espacial. Las sombras no forman parte del lenguaje base.
 
@@ -143,7 +143,7 @@ La paleta implementada es neutral y adaptable a los modos claro y oscuro, con co
 
 ### Primary
 
-- **Ruta Aqua** (`#14B8A6` → `#0EA5E9`): logo, selección y acciones principales en modo claro.
+- **Ruta Aqua** (`#3BCBB9` → `#40B9ED`): logo, selección y acciones principales en modo claro.
 - **Ruta Atardecer** (`#FFA263` → `#703297`): logo, selección y acciones principales en modo oscuro; una capa oscura preserva el contraste del texto.
 
 ### Neutral
@@ -161,7 +161,7 @@ La paleta implementada es neutral y adaptable a los modos claro y oscuro, con co
 
 **The Gradient Border Rule.** Un fondo degradado no usa borde de acento: queda sin borde o con borde gris. El naranja o aqua en bordes se reserva para foco y selección sobre superficies grises.
 
-**The Disabled-is-Neutral Rule.** Todo botón deshabilitado usa un fondo gris sólido sin degradado; el degradado aparece únicamente cuando la acción está habilitada.
+**The Disabled-is-Subtle Rule.** En modo claro, los botones deshabilitados usan un aqua tenue y texto legible. En modo oscuro conservan un gris sólido. El degradado aparece únicamente cuando la acción está habilitada.
 
 **The Semantic Color Rule.** Verde, rojo y ámbar comunican éxito, error y advertencia. No se usan como decoración.
 
