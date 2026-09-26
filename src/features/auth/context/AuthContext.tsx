@@ -14,6 +14,7 @@ import { secureStorage } from '@/services/storage/secure-storage.service';
 type AuthContextValue = {
   status: AuthStatus;
   user: InstitutionalUserProfile | null;
+  accessToken: string | null;
   activeUniversity: UniversityId | null;
   loginWithUniversity: (universityId: UniversityId, credentials: AuthCredentials) => Promise<void>;
   completeAuthentication: (response: AuthResponse, rememberSession: boolean) => Promise<void>;
@@ -63,6 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AuthContextValue>(() => ({
     status,
     user,
+    accessToken,
     activeUniversity,
     async completeAuthentication(response, rememberSession) {
       if (rememberSession) {

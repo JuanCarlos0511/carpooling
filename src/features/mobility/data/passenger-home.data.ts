@@ -14,11 +14,4 @@ export const passengerHomeData = {
     name: 'Hopn',
     subtitle: 'Red universitaria',
   },
-  upcomingTrip: {
-    driver: 'Carlos Méndez',
-    car: 'Tesla Model 3 · Gris Titanio',
-    pin: '8492',
-    meetingPoint: 'Torre Virreyes',
-    departure: 'Hoy · 18:30',
-  },
 } as const;

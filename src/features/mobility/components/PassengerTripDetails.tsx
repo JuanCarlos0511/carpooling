@@ -1,14 +1,36 @@
-import { CarFront, Clock3, MapPin, ShieldCheck, TicketCheck, UserRound } from 'lucide-react-native';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Clock3, MapPin, Route, ShieldCheck, TicketCheck, UserRound } from 'lucide-react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { type AppTheme, useAppTheme } from '@/constants/theme';
-import { passengerHomeData } from '@/features/mobility/data/passenger-home.data';
+import { useAuth } from '@/features/auth/context/AuthContext';
+import { useAgreedTrip } from '@/features/mobility/hooks/useAgreedTrip';
+import { formatDeparture } from '@/features/mobility/services/publication.service';
 
 export function PassengerTripDetails() {
   const theme = useAppTheme();
   const styles = makeStyles(theme);
-  const trip = passengerHomeData.upcomingTrip;
+  const { accessToken } = useAuth();
+  const { trip, loading, error, retry } = useAgreedTrip(accessToken);
+
+  if (loading) return (
+    <SafeAreaView style={styles.screen} edges={['top']}>
+      <View style={styles.state}><ActivityIndicator color={theme.colors.accentStrong} /><Text style={styles.intro}>Cargando viaje…</Text></View>
+    </SafeAreaView>
+  );
+
+  if (error || !trip) return (
+    <SafeAreaView style={styles.screen} edges={['top']}>
+      <View style={styles.state}>
+        <Text accessibilityRole={error ? 'alert' : undefined} style={styles.intro}>
+          {error ?? 'Aún no tienes un viaje acordado.'}
+        </Text>
+        {error ? <Pressable accessibilityRole="button" onPress={retry} style={styles.retryButton}>
+          <Text style={styles.retryText}>Reintentar</Text>
+        </Pressable> : null}
+      </View>
+    </SafeAreaView>
+  );
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
@@ -20,28 +42,32 @@ export function PassengerTripDetails() {
         <View style={styles.card}>
           <View style={styles.row}>
             <UserRound size={20} color={theme.colors.accentStrong} />
-            <View style={styles.rowText}><Text style={styles.label}>Conductor</Text><Text style={styles.value}>{trip.driver}</Text></View>
+            <View style={styles.rowText}><Text style={styles.label}>Conductor</Text><Text style={styles.value}>{trip.trip.driver.fullName}</Text></View>
           </View>
           <View style={styles.divider} />
           <View style={styles.row}>
-            <CarFront size={20} color={theme.colors.accentStrong} />
-            <View style={styles.rowText}><Text style={styles.label}>Vehículo</Text><Text style={styles.value}>{trip.car}</Text></View>
+            <Route size={20} color={theme.colors.accentStrong} />
+            <View style={styles.rowText}><Text style={styles.label}>Ruta</Text><Text style={styles.value}>
+              {trip.trip.route.origin.name} → {trip.trip.route.destination.name}
+            </Text></View>
           </View>
           <View style={styles.divider} />
           <View style={styles.row}>
             <Clock3 size={20} color={theme.colors.accentStrong} />
-            <View style={styles.rowText}><Text style={styles.label}>Salida</Text><Text style={styles.value}>{trip.departure}</Text></View>
+            <View style={styles.rowText}><Text style={styles.label}>Hora de encuentro</Text>
+              <Text style={styles.value}>{formatDeparture(trip.boardingStop.scheduledAt)}</Text></View>
           </View>
           <View style={styles.divider} />
           <View style={styles.row}>
             <MapPin size={20} color={theme.colors.accentStrong} />
-            <View style={styles.rowText}><Text style={styles.label}>Punto de encuentro</Text><Text style={styles.value}>{trip.meetingPoint}</Text></View>
+            <View style={styles.rowText}><Text style={styles.label}>Punto de encuentro</Text><Text style={styles.value}>{trip.boardingStop.name}</Text></View>
           </View>
         </View>
 
         <View style={styles.pinCard}>
           <TicketCheck size={23} color={theme.colors.accentStrong} />
-          <View style={styles.pinText}><Text style={styles.label}>PIN de abordaje</Text><Text style={styles.pin}>{trip.pin}</Text></View>
+          <View style={styles.pinText}><Text style={styles.label}>PIN de abordaje</Text>
+            <Text style={styles.pin}>{trip.boardingPin ?? 'Pendiente'}</Text></View>
         </View>
         <View style={styles.verified}><ShieldCheck size={17} color={theme.colors.textMuted} />
           <Text style={styles.verifiedText}>Comunidad universitaria verificada</Text></View>
@@ -55,6 +81,9 @@ function makeStyles(theme: AppTheme) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
     content: { width: '100%', maxWidth: 620, alignSelf: 'center', padding: spacing.md, paddingBottom: spacing.xxl },
+    state: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.lg, gap: spacing.md },
+    retryButton: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing.md },
+    retryText: { color: colors.accentStrong, fontSize: typography.size.body, fontWeight: typography.weight.bold },
     eyebrow: { color: colors.accentStrong, fontSize: typography.size.label, fontWeight: typography.weight.bold,
       letterSpacing: typography.letterSpacing.label, marginTop: spacing.md },
     title: { color: colors.textPrimary, fontSize: typography.size.title, fontWeight: typography.weight.bold, marginTop: spacing.xs },

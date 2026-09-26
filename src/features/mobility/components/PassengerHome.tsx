@@ -1,36 +1,23 @@
 import { useCallback, useState } from 'react';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { CarFront, LogOut, MapPin, Repeat2, Route, UserRound, UsersRound } from 'lucide-react-native';
+import { CarFront, LogOut, Repeat2, Route, UserRound, UsersRound } from 'lucide-react-native';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GradientFill } from '@/components/ui/GradientFill';
 import { type AppTheme, useAppTheme } from '@/constants/theme';
 import { useAuth } from '@/features/auth/context/AuthContext';
+import { AgreedTripCard } from '@/features/mobility/components/AgreedTripCard';
+import { PassengerAvatar } from '@/features/mobility/components/PassengerAvatar';
 import { passengerHomeData } from '@/features/mobility/data/passenger-home.data';
+import { useAgreedTrip } from '@/features/mobility/hooks/useAgreedTrip';
 import { getOpenPublications, passengerSeats, publicationText, type PublicationTrip } from '@/features/mobility/services/publication.service';
-
-function initials(name: string) {
-  return name.split(' ').slice(0, 2).map((part) => part.charAt(0)).join('').toUpperCase();
-}
-
-function Avatar({ name, size = 52, theme, online = false }: { name: string; size?: number; theme: AppTheme; online?: boolean }) {
-  return (
-    <View style={{ width: size, height: size }}>
-      <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: theme.colors.surfaceElevated,
-        borderWidth: 1, borderColor: theme.colors.borderStrong, alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={{ color: theme.colors.textPrimary, fontSize: size * 0.31, fontWeight: '700' }}>{initials(name)}</Text>
-      </View>
-      {online ? <View style={{ position: 'absolute', width: 14, height: 14, borderRadius: 7, right: 0, bottom: 0,
-        backgroundColor: theme.colors.success, borderWidth: 2, borderColor: theme.colors.surface }} /> : null}
-    </View>
-  );
-}
 
 export function PassengerHome() {
   const theme = useAppTheme();
   const router = useRouter();
-  const { user, logout, changeRole } = useAuth();
+  const { user, accessToken, logout, changeRole } = useAuth();
+  const { trip: agreedTrip, error: agreedTripError, retry: retryAgreedTrip } = useAgreedTrip(accessToken);
   const [menuOpen, setMenuOpen] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [switching, setSwitching] = useState(false);
@@ -40,7 +27,7 @@ export function PassengerHome() {
   const [publicationsError, setPublicationsError] = useState<string>();
   const [reloadToken, setReloadToken] = useState(0);
   const styles = makeStyles(theme);
-  const { brand, upcomingTrip } = passengerHomeData;
+  const { brand } = passengerHomeData;
   const displayName = user?.fullName || 'Pasajero';
 
   useFocusEffect(useCallback(() => {
@@ -96,7 +83,7 @@ export function PassengerHome() {
           </View>
           <Pressable accessibilityLabel={`Opciones de ${displayName}`} accessibilityRole="button" accessibilityState={{ expanded: menuOpen }}
             onPress={() => setMenuOpen((value) => !value)} style={styles.profileButton}>
-            <Avatar name={displayName} size={44} theme={theme} />
+            <PassengerAvatar name={displayName} size={44} theme={theme} />
           </Pressable>
         </View>
 
@@ -117,46 +104,24 @@ export function PassengerHome() {
           </View>
         ) : null}
 
-        <View style={styles.sectionHeading}>
-          <View>
-            <Text style={styles.eyebrow}>TU PRÓXIMO VIAJE</Text>
-            <Text style={styles.sectionTitle}>Todo listo para salir</Text>
-          </View>
-          <View style={styles.confirmedBadge}><View style={styles.confirmedDot} /><Text style={styles.confirmedText}>CONFIRMADO</Text></View>
-        </View>
+        {agreedTrip ? <AgreedTripCard agreedTrip={agreedTrip} onDetails={() => router.push('/passenger/detalles')} /> : null}
 
-        <View style={styles.upcomingCard}>
-          <View style={styles.upcomingMain}>
-            <Avatar name={upcomingTrip.driver} size={60} theme={theme} />
-            <View style={styles.driverDetails}>
-              <Text style={styles.driverName} numberOfLines={1}>{upcomingTrip.driver}</Text>
-              <Text style={styles.carText} numberOfLines={2}>{upcomingTrip.car}</Text>
-            </View>
-            <View style={styles.pinBlock}>
-              <Text style={styles.pinLabel}>PIN</Text>
-              <Text style={styles.pinValue}>{upcomingTrip.pin}</Text>
-            </View>
-          </View>
-          <View style={styles.separator} />
-          <View style={styles.meetingRow}>
-            <MapPin size={19} color={theme.colors.accent} />
-            <Text style={styles.meetingText}>Punto de encuentro: <Text style={styles.meetingStrong}>{upcomingTrip.meetingPoint}</Text></Text>
-          </View>
-          <Text style={styles.departureText}>{upcomingTrip.departure}</Text>
-          <Pressable accessibilityRole="link" accessibilityLabel="Ver detalles de la ruta activa"
-            onPress={() => router.push('/passenger/detalles')}
-            style={({ pressed }) => [styles.tripDetailsLink, pressed && styles.tripDetailsLinkPressed]}>
-            <Text style={styles.tripDetailsLinkText}>Ver detalles</Text>
-          </Pressable>
-        </View>
-
-        <View style={[styles.sectionHeading, styles.feedHeading]}>
+        <View style={[styles.sectionHeading, agreedTrip && styles.feedHeading]}>
           <View>
             <Text style={styles.eyebrow}>PARA TI</Text>
             <Text style={styles.sectionTitle}>Viajes de la comunidad</Text>
           </View>
           <UsersRound size={21} color={theme.colors.textMuted} />
         </View>
+
+        {agreedTripError ? (
+          <View style={styles.feedStatus}>
+            <Text accessibilityRole="alert" style={styles.feedStatusText}>{agreedTripError}</Text>
+            <Pressable accessibilityRole="button" onPress={retryAgreedTrip} style={styles.retryButton}>
+              <Text style={styles.detailsLinkText}>Reintentar</Text>
+            </Pressable>
+          </View>
+        ) : null}
 
         {publicationsLoading ? (
           <View style={styles.feedStatus}><ActivityIndicator color={theme.colors.accentStrong} /><Text style={styles.feedStatusText}>Cargando publicaciones…</Text></View>
@@ -202,7 +167,7 @@ export function PassengerHome() {
               </View>
               <Pressable accessibilityRole="link" accessibilityLabel={`Ver detalles de la publicación desde ${trip.route.origin.name}`}
                 onPress={() => router.push({ pathname: '/passenger/publicacion/[id]', params: { id: trip.id } })}
-                style={({ pressed }) => [styles.detailsLink, pressed && styles.tripDetailsLinkPressed]}>
+                style={({ pressed }) => [styles.detailsLink, pressed && styles.detailsLinkPressed]}>
                 <Text style={styles.detailsLinkText}>Ver detalles</Text>
               </Pressable>
             </View>
@@ -236,26 +201,6 @@ function makeStyles(theme: AppTheme) {
     sectionHeading: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: spacing.sm, marginBottom: spacing.md },
     eyebrow: { color: colors.accentStrong, fontSize: typography.size.label, fontWeight: typography.weight.bold, letterSpacing: typography.letterSpacing.label, marginBottom: spacing.xs },
     sectionTitle: { color: colors.textPrimary, fontSize: 21, fontWeight: typography.weight.bold, lineHeight: 27 },
-    confirmedBadge: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, borderWidth: 1, borderColor: colors.border,
-      backgroundColor: colors.surface, borderRadius: borderRadius.full, paddingVertical: 7, paddingHorizontal: 9 },
-    confirmedDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.success },
-    confirmedText: { color: colors.textSecondary, fontSize: 9, fontWeight: typography.weight.bold, letterSpacing: 0.6 },
-    upcomingCard: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: borderRadius.lg, padding: spacing.md },
-    upcomingMain: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-    driverDetails: { flex: 1, minWidth: 0 },
-    driverName: { color: colors.textPrimary, fontSize: typography.size.subtitle, fontWeight: typography.weight.bold },
-    carText: { color: colors.textSecondary, fontSize: typography.size.bodySmall, marginTop: spacing.xs, lineHeight: 18 },
-    pinBlock: { borderLeftWidth: 1, borderLeftColor: colors.border, paddingLeft: spacing.sm, alignItems: 'center' },
-    pinLabel: { color: colors.textMuted, fontSize: typography.size.label, fontWeight: typography.weight.semibold, letterSpacing: typography.letterSpacing.label },
-    pinValue: { color: colors.accentStrong, fontSize: 23, fontWeight: typography.weight.bold, letterSpacing: 2, marginTop: spacing.xs },
-    separator: { height: 1, backgroundColor: colors.border, marginVertical: spacing.md },
-    meetingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-    meetingText: { color: colors.textSecondary, fontSize: typography.size.bodySmall, flex: 1, lineHeight: 19 },
-    meetingStrong: { color: colors.textPrimary, fontWeight: typography.weight.semibold },
-    departureText: { color: colors.textMuted, fontSize: typography.size.bodySmall, marginLeft: 27, marginTop: spacing.xs },
-    tripDetailsLink: { alignSelf: 'flex-end', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing.xs, marginTop: spacing.xs },
-    tripDetailsLinkPressed: { opacity: 0.65 },
-    tripDetailsLinkText: { color: colors.accentStrong, fontSize: typography.size.bodySmall, fontWeight: typography.weight.bold },
     feedHeading: { marginTop: spacing.xl },
     feedCard: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: borderRadius.lg,
       padding: spacing.md, marginBottom: spacing.md },
@@ -284,6 +229,7 @@ function makeStyles(theme: AppTheme) {
     seatSlash: { position: 'absolute', width: 29, height: 2, borderRadius: 1, backgroundColor: colors.textMuted, transform: [{ rotate: '-45deg' }] },
     seatCaption: { color: colors.textMuted, fontSize: typography.size.caption },
     detailsLink: { alignSelf: 'flex-end', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing.xs, marginTop: spacing.sm },
+    detailsLinkPressed: { opacity: 0.65 },
     detailsLinkText: { color: colors.accentStrong, fontSize: typography.size.body, fontWeight: typography.weight.bold },
     bottomNote: { color: colors.textMuted, fontSize: typography.size.bodySmall, textAlign: 'center', marginTop: spacing.lg },
   });
