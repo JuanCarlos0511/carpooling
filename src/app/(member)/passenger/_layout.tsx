@@ -31,6 +31,7 @@ export default function PassengerTabsLayout() {
       <Tabs.Screen name="configuracion" options={{ title: 'Configuración',
         tabBarIcon: ({ color, size }) => <Settings2 color={color} size={size} /> }} />
       <Tabs.Screen name="detalles" options={{ href: null }} />
+      <Tabs.Screen name="publicacion" options={{ href: null }} />
     </Tabs>
   );
 }
