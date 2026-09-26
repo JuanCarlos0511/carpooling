@@ -14,7 +14,7 @@ export function WaypointDetails({ point, side }: Props) {
       <View style={[styles.pointer, side === 'left' ? styles.pointerRight : styles.pointerLeft,
         { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]} />
       <Text style={[styles.name, { color: theme.colors.textPrimary }]} numberOfLines={2}>{point.name}</Text>
-      <Text style={[styles.label, { color: theme.colors.textSecondary }]}>Hora estimada de llegada</Text>
+      <Text style={[styles.label, { color: theme.colors.textSecondary }]}>Hora de llegada</Text>
       <Text style={[styles.time, { color: theme.colors.textPrimary }]}>{point.arrivalTime}</Text>
       <View style={styles.statusRow}>
         <View style={[styles.statusDot, { backgroundColor: complete ? theme.colors.success : theme.colors.accent }]} />
