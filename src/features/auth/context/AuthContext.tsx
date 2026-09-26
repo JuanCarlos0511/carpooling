@@ -17,6 +17,7 @@ type AuthContextValue = {
   activeUniversity: UniversityId | null;
   loginWithUniversity: (universityId: UniversityId, credentials: AuthCredentials) => Promise<void>;
   completeAuthentication: (response: AuthResponse, rememberSession: boolean) => Promise<void>;
+  changeRole: (role: 'driver' | 'passenger') => Promise<void>;
   logout: () => Promise<void>;
   restoreSession: () => Promise<void>;
 };
@@ -27,6 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<AuthStatus>('idle');
   const [user, setUser] = useState<InstitutionalUserProfile | null>(null);
   const [activeUniversity, setActiveUniversity] = useState<UniversityId | null>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -48,6 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         if (!mounted) return;
         setUser(session.user);
+        setAccessToken(session.token);
         setActiveUniversity(session.universityId);
         setStatus('authenticated');
       } catch {
@@ -72,6 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await secureStorage.clearSession();
       }
       setUser(response.user);
+      setAccessToken(response.accessToken);
       setActiveUniversity('api');
       setStatus('authenticated');
     },
@@ -89,6 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           response.refreshToken,
         );
         setUser(response.user);
+        setAccessToken(response.accessToken);
         setActiveUniversity(universityId);
         setStatus('authenticated');
       } catch (error) {
@@ -101,6 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async logout() {
       await secureStorage.clearSession();
       setUser(null);
+      setAccessToken(null);
       setActiveUniversity(null);
       setStatus('unauthenticated');
     },
@@ -119,10 +125,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
       setUser(session.user);
+      setAccessToken(session.token);
       setActiveUniversity(session.universityId);
       setStatus('authenticated');
     },
-  }), [activeUniversity, status, user]);
+    async changeRole(role) {
+      const apiRoot = (process.env.EXPO_PUBLIC_API_URL ?? '').replace(/\/$/, '');
+      if (!apiRoot || !accessToken || !user) {
+        throw new AuthError('No hay una sesión válida para cambiar de modo.', 'SERVER_ERROR');
+      }
+      let response: Response;
+      try {
+        response = await fetch(`${apiRoot}/api/v1/users/me/role`, {
+          method: 'PATCH',
+          headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json', 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role }),
+        });
+      } catch {
+        throw new AuthError('No fue posible conectar con el servidor.', 'NETWORK_ERROR');
+      }
+      if (!response.ok) throw new AuthError('No fue posible cambiar de modo.', 'SERVER_ERROR');
+      const payload = await response.json() as { user?: { role?: string } };
+      if (payload.user?.role !== role) throw new AuthError('El servidor no confirmó el cambio de modo.', 'INVALID_RESPONSE');
+      const updatedUser = { ...user, role };
+      const session = await secureStorage.getSession();
+      if (session) {
+        await secureStorage.saveSession({ ...session, user: updatedUser }, await secureStorage.getRefreshToken() ?? undefined);
+      }
+      setUser(updatedUser);
+    },
+  }), [accessToken, activeUniversity, status, user]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

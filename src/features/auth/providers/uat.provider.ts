@@ -80,6 +80,7 @@ export class UATAuthProvider implements IAuthProvider {
     return {
       id: this.requiredString(user, 'id'),
       fullName: this.requiredString(user, 'fullName', 'name'),
+      role: this.readString(user, 'role') === 'driver' ? 'driver' : 'passenger',
       institutionalEmail: this.requiredString(user, 'email', 'institutionalEmail'),
       studentId: this.readString(user, 'studentId') ?? '',
       campus: this.readString(user, 'campus') ?? '',
