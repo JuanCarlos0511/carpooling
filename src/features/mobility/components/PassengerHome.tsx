@@ -1,14 +1,14 @@
-import { useState } from 'react';
-import { useRouter } from 'expo-router';
-import { CarFront, LogOut, MapPin, Repeat2, Route, ShieldCheck, UserPlus, UserRound, UsersRound } from 'lucide-react-native';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { CarFront, LogOut, MapPin, Repeat2, Route, UserRound, UsersRound } from 'lucide-react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GradientFill } from '@/components/ui/GradientFill';
 import { type AppTheme, useAppTheme } from '@/constants/theme';
 import { useAuth } from '@/features/auth/context/AuthContext';
 import { passengerHomeData } from '@/features/mobility/data/passenger-home.data';
-import { RouteMapCard } from '@/features/mobility/components/RouteMapCard';
+import { getOpenPublications, passengerSeats, publicationText, type PublicationTrip } from '@/features/mobility/services/publication.service';
 
 function initials(name: string) {
   return name.split(' ').slice(0, 2).map((part) => part.charAt(0)).join('').toUpperCase();
@@ -30,13 +30,33 @@ function Avatar({ name, size = 52, theme, online = false }: { name: string; size
 export function PassengerHome() {
   const theme = useAppTheme();
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, logout, changeRole } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  const [switching, setSwitching] = useState(false);
   const [error, setError] = useState<string>();
+  const [publications, setPublications] = useState<PublicationTrip[]>([]);
+  const [publicationsLoading, setPublicationsLoading] = useState(true);
+  const [publicationsError, setPublicationsError] = useState<string>();
+  const [reloadToken, setReloadToken] = useState(0);
   const styles = makeStyles(theme);
-  const { brand, upcomingTrip, featuredTrip } = passengerHomeData;
+  const { brand, upcomingTrip } = passengerHomeData;
   const displayName = user?.fullName || 'Pasajero';
+
+  useFocusEffect(useCallback(() => {
+    const controller = new AbortController();
+    setPublicationsLoading(true);
+    setPublicationsError(undefined);
+    void getOpenPublications(controller.signal)
+      .then((trips) => setPublications(trips))
+      .catch(() => {
+        if (!controller.signal.aborted) setPublicationsError('No fue posible cargar las publicaciones.');
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setPublicationsLoading(false);
+      });
+    return () => controller.abort();
+  }, [reloadToken]));
 
   async function signOut() {
     setError(undefined);
@@ -50,8 +70,21 @@ export function PassengerHome() {
     }
   }
 
+  async function switchToDriver() {
+    setError(undefined);
+    setSwitching(true);
+    try {
+      await changeRole('driver');
+      router.replace('/driver');
+    } catch {
+      setError('No fue posible cambiar de modo. Vuelve a intentarlo.');
+    } finally {
+      setSwitching(false);
+    }
+  }
+
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <View style={styles.brandRow}>
@@ -72,8 +105,9 @@ export function PassengerHome() {
             <Text style={styles.menuName} numberOfLines={1}>{displayName}</Text>
             <Text style={styles.menuSubtitle}>Modo pasajero</Text>
             <View style={styles.menuRule} />
-            <Pressable accessibilityRole="button" onPress={() => router.replace('/driver')} style={styles.menuAction}>
-              <Repeat2 size={18} color={theme.colors.textSecondary} /><Text style={styles.menuActionText}>Cambiar a conductor</Text>
+            <Pressable accessibilityRole="button" disabled={switching} onPress={() => void switchToDriver()} style={styles.menuAction}>
+              {switching ? <ActivityIndicator size="small" color={theme.colors.textSecondary} /> : <Repeat2 size={18} color={theme.colors.textSecondary} />}
+              <Text style={styles.menuActionText}>Cambiar a conductor</Text>
             </Pressable>
             <Pressable accessibilityRole="button" disabled={leaving} onPress={() => void signOut()} style={styles.menuAction}>
               {leaving ? <ActivityIndicator size="small" color={theme.colors.textSecondary} /> : <LogOut size={18} color={theme.colors.textSecondary} />}
@@ -109,6 +143,11 @@ export function PassengerHome() {
             <Text style={styles.meetingText}>Punto de encuentro: <Text style={styles.meetingStrong}>{upcomingTrip.meetingPoint}</Text></Text>
           </View>
           <Text style={styles.departureText}>{upcomingTrip.departure}</Text>
+          <Pressable accessibilityRole="link" accessibilityLabel="Ver detalles de la ruta activa"
+            onPress={() => router.push('/passenger/detalles')}
+            style={({ pressed }) => [styles.tripDetailsLink, pressed && styles.tripDetailsLinkPressed]}>
+            <Text style={styles.tripDetailsLinkText}>Ver detalles</Text>
+          </Pressable>
         </View>
 
         <View style={[styles.sectionHeading, styles.feedHeading]}>
@@ -119,61 +158,56 @@ export function PassengerHome() {
           <UsersRound size={21} color={theme.colors.textMuted} />
         </View>
 
-        <View style={styles.feedCard}>
-          <View style={styles.feedTop}>
-            <View style={styles.feedDriver}>
-              <Avatar name={featuredTrip.driver} size={56} theme={theme} online />
-              <View style={styles.feedDriverText}>
-                <Text style={styles.feedName} numberOfLines={1}>{featuredTrip.driver}</Text>
-                <Text style={styles.postedAgo}>{featuredTrip.postedAgo}</Text>
+        {publicationsLoading ? (
+          <View style={styles.feedStatus}><ActivityIndicator color={theme.colors.accentStrong} /><Text style={styles.feedStatusText}>Cargando publicaciones…</Text></View>
+        ) : publicationsError ? (
+          <View style={styles.feedStatus}>
+            <Text accessibilityRole="alert" style={styles.feedStatusText}>{publicationsError}</Text>
+            <Pressable accessibilityRole="button" onPress={() => setReloadToken((value) => value + 1)} style={styles.retryButton}>
+              <Text style={styles.detailsLinkText}>Reintentar</Text>
+            </Pressable>
+          </View>
+        ) : publications.length === 0 ? (
+          <View style={styles.feedStatus}><Text style={styles.feedStatusText}>Todavía no hay publicaciones abiertas con lugares disponibles.</Text></View>
+        ) : publications.map((trip) => {
+          const seats = passengerSeats(trip);
+          return (
+            <View key={trip.id} style={styles.feedCard}>
+              <Text style={styles.description}>{publicationText(trip)}</Text>
+              <View style={styles.priceBadge}>
+                <Text style={styles.priceLabel}>APORTACIÓN TOTAL</Text>
+                <Text style={styles.priceValue}>${trip.price}<Text style={styles.currency}> MXN</Text></Text>
               </View>
-            </View>
-            <View style={styles.priceBadge}>
-              <Text style={styles.priceLabel}>APORTACIÓN</Text>
-              <Text style={styles.priceValue}>${featuredTrip.contribution}<Text style={styles.currency}> {featuredTrip.currency}</Text></Text>
-            </View>
-          </View>
-
-          <Text style={styles.description}>{featuredTrip.description}</Text>
-
-          <RouteMapCard departureTime={featuredTrip.departureTime} waypoints={featuredTrip.waypoints} />
-
-          <View style={styles.seatsHeader}>
-            <View style={styles.seatsTitleRow}>
-              <CarFront size={20} color={theme.colors.textPrimary} />
-              <Text style={styles.seatsTitle}>Asientos en el auto</Text>
-            </View>
-            <View style={styles.freeBadge}><Text style={styles.freeBadgeText}>{featuredTrip.freeSeats} libres</Text></View>
-          </View>
-          <Text style={styles.capacityText}>Capacidad total: {featuredTrip.carCapacity} lugares</Text>
-          <View style={styles.seatsRow} accessible accessibilityLabel={`${featuredTrip.occupiedSeats} asientos ocupados y ${featuredTrip.freeSeats} libres`}>
-            {Array.from({ length: featuredTrip.carCapacity }, (_, index) => {
-              const occupied = index < featuredTrip.occupiedSeats;
-              return (
-                <View key={index} style={styles.seatItem}>
-                  <View style={[styles.seatIcon, occupied ? styles.seatOccupied : styles.seatFree]}>
-                    <UserRound size={21} strokeWidth={2.1} color={occupied ? theme.colors.textMuted : theme.colors.accentStrong} />
-                    {occupied ? <View style={styles.seatSlash} /> : null}
-                  </View>
-                  <Text style={styles.seatCaption}>{occupied ? (index === 0 ? 'Cond.' : 'Ocup.') : 'Libre'}</Text>
+              <View style={styles.seatsHeader}>
+                <View style={styles.seatsTitleRow}>
+                  <CarFront size={20} color={theme.colors.textPrimary} />
+                  <Text style={styles.seatsTitle}>Asientos para pasajeros</Text>
                 </View>
-              );
-            })}
-          </View>
-          <Pressable accessibilityRole="button" accessibilityLabel="Pedir un lugar"
-            disabled={featuredTrip.freeSeats < 1}
-            onPress={() => Alert.alert('Publicación de ejemplo', 'Este viaje de muestra aún no permite solicitar lugares.')}
-            style={({ pressed }) => [styles.requestButton, pressed && styles.requestButtonPressed,
-              featuredTrip.freeSeats < 1 && styles.requestButtonDisabled]}>
-            <GradientFill dominantStart />
-            <UserPlus size={20} color={theme.colors.white} strokeWidth={2.3} />
-            <Text style={styles.requestButtonText}>Pedir un lugar</Text>
-          </Pressable>
-          <View style={styles.feedFooter}>
-            <ShieldCheck size={17} color={theme.colors.textMuted} />
-            <Text style={styles.feedFooterText}>Comunidad universitaria verificada</Text>
-          </View>
-        </View>
+                <View style={styles.freeBadge}><Text style={styles.freeBadgeText}>{seats.available} libres</Text></View>
+              </View>
+              <Text style={styles.capacityText}>{seats.capacity} lugares para pasajeros en total</Text>
+              <View style={styles.seatsRow} accessible accessibilityLabel={`${seats.occupied} asientos ocupados y ${seats.available} libres para pasajeros`}>
+                {Array.from({ length: seats.capacity }, (_, index) => {
+                  const occupied = index < seats.occupied;
+                  return (
+                    <View key={index} style={styles.seatItem}>
+                      <View style={[styles.seatIcon, occupied ? styles.seatOccupied : styles.seatFree]}>
+                        <UserRound size={21} strokeWidth={2.1} color={occupied ? theme.colors.textMuted : theme.colors.accentStrong} />
+                        {occupied ? <View style={styles.seatSlash} /> : null}
+                      </View>
+                      <Text style={styles.seatCaption}>{occupied ? 'Ocup.' : 'Libre'}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+              <Pressable accessibilityRole="link" accessibilityLabel={`Ver detalles de la publicación desde ${trip.route.origin.name}`}
+                onPress={() => router.push({ pathname: '/passenger/publicacion/[id]', params: { id: trip.id } })}
+                style={({ pressed }) => [styles.detailsLink, pressed && styles.tripDetailsLinkPressed]}>
+                <Text style={styles.detailsLinkText}>Ver detalles</Text>
+              </Pressable>
+            </View>
+          );
+        })}
         <Text style={styles.bottomNote}>Viaja acompañado, llega mejor.</Text>
       </ScrollView>
     </SafeAreaView>
@@ -219,19 +253,23 @@ function makeStyles(theme: AppTheme) {
     meetingText: { color: colors.textSecondary, fontSize: typography.size.bodySmall, flex: 1, lineHeight: 19 },
     meetingStrong: { color: colors.textPrimary, fontWeight: typography.weight.semibold },
     departureText: { color: colors.textMuted, fontSize: typography.size.bodySmall, marginLeft: 27, marginTop: spacing.xs },
+    tripDetailsLink: { alignSelf: 'flex-end', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing.xs, marginTop: spacing.xs },
+    tripDetailsLinkPressed: { opacity: 0.65 },
+    tripDetailsLinkText: { color: colors.accentStrong, fontSize: typography.size.bodySmall, fontWeight: typography.weight.bold },
     feedHeading: { marginTop: spacing.xl },
-    feedCard: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: borderRadius.lg, padding: spacing.md },
-    feedTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm },
-    feedDriver: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-    feedDriverText: { flex: 1, minWidth: 0 },
-    feedName: { color: colors.textPrimary, fontSize: typography.size.subtitle, fontWeight: typography.weight.bold },
-    postedAgo: { color: colors.textMuted, fontSize: typography.size.bodySmall, marginTop: spacing.xs },
-    priceBadge: { backgroundColor: colors.surfaceElevated, borderColor: colors.border, borderWidth: 1, borderRadius: borderRadius.lg,
-      alignItems: 'center', paddingVertical: spacing.sm, paddingHorizontal: spacing.sm },
+    feedCard: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: borderRadius.lg,
+      padding: spacing.md, marginBottom: spacing.md },
+    feedStatus: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: borderRadius.lg,
+      padding: spacing.lg, alignItems: 'center', gap: spacing.sm },
+    feedStatusText: { color: colors.textSecondary, fontSize: typography.size.body, lineHeight: 22, textAlign: 'center' },
+    retryButton: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing.md },
+    priceBadge: { backgroundColor: colors.surfaceElevated, borderColor: colors.border, borderWidth: 1, borderRadius: borderRadius.md,
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm,
+      paddingVertical: spacing.sm, paddingHorizontal: spacing.md },
     priceLabel: { color: colors.textMuted, fontSize: 10, letterSpacing: 0.5, fontWeight: typography.weight.bold },
     priceValue: { color: colors.textPrimary, fontSize: 18, fontWeight: typography.weight.bold, marginTop: 2 },
     currency: { color: colors.textSecondary, fontSize: typography.size.label, fontWeight: typography.weight.regular },
-    description: { color: colors.textSecondary, fontSize: typography.size.body, lineHeight: 23, marginTop: spacing.lg, marginBottom: spacing.lg },
+    description: { color: colors.textSecondary, fontSize: typography.size.body, lineHeight: 23, marginBottom: spacing.md },
     seatsHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing.lg },
     seatsTitleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flexShrink: 1 },
     seatsTitle: { color: colors.textPrimary, fontSize: typography.size.subtitle, fontWeight: typography.weight.semibold },
@@ -245,14 +283,8 @@ function makeStyles(theme: AppTheme) {
     seatFree: { backgroundColor: colors.accentSoft, borderColor: colors.accentStrong, borderStyle: 'dashed' },
     seatSlash: { position: 'absolute', width: 29, height: 2, borderRadius: 1, backgroundColor: colors.textMuted, transform: [{ rotate: '-45deg' }] },
     seatCaption: { color: colors.textMuted, fontSize: typography.size.caption },
-    requestButton: { minHeight: 52, marginTop: spacing.lg, borderRadius: borderRadius.md, backgroundColor: colors.accent,
-      overflow: 'hidden', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
-    requestButtonPressed: { opacity: 0.82 },
-    requestButtonDisabled: { opacity: 0.45 },
-    requestButtonText: { color: colors.white, fontSize: typography.size.body, fontWeight: typography.weight.bold },
-    feedFooter: { borderTopColor: colors.border, borderTopWidth: 1, marginTop: spacing.lg, paddingTop: spacing.md,
-      flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-    feedFooterText: { color: colors.textMuted, fontSize: typography.size.bodySmall, flex: 1 },
+    detailsLink: { alignSelf: 'flex-end', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing.xs, marginTop: spacing.sm },
+    detailsLinkText: { color: colors.accentStrong, fontSize: typography.size.body, fontWeight: typography.weight.bold },
     bottomNote: { color: colors.textMuted, fontSize: typography.size.bodySmall, textAlign: 'center', marginTop: spacing.lg },
   });
 }
