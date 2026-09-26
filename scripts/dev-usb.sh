@@ -4,7 +4,6 @@ set -Eeuo pipefail
 
 APP_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 OPEN_APP_PID=
-DEBUG_API_URL=
 
 cleanup() {
   local exit_code=$?
@@ -30,19 +29,6 @@ require_command() {
 require_command adb
 require_command curl
 require_command npm
-
-if [[ -f "$APP_DIR/.env.debug" ]]; then
-  while IFS= read -r line || [[ -n "$line" ]]; do
-    if [[ "$line" == EXPO_PUBLIC_API_URL=* ]]; then
-      DEBUG_API_URL="${line#EXPO_PUBLIC_API_URL=}"
-    fi
-  done < "$APP_DIR/.env.debug"
-  if [[ "$DEBUG_API_URL" != https://* ]]; then
-    echo "Error: configura EXPO_PUBLIC_API_URL con el dominio HTTPS del backend debug en .env.debug." >&2
-    exit 1
-  fi
-  echo "✓ API debug: $DEBUG_API_URL"
-fi
 
 if [[ -z "${ADB_SERIAL:-}" ]]; then
   mapfile -t CONNECTED_DEVICES < <(adb devices | awk 'NR > 1 && $2 == "device" { print $1 }')
@@ -109,8 +95,4 @@ OPEN_APP_PID=$!
 echo "Iniciando Metro con Fast Refresh..."
 echo "Presiona Ctrl+C para detener esta sesión."
 cd "$APP_DIR"
-if [[ -n "$DEBUG_API_URL" ]]; then
-  EXPO_PUBLIC_API_URL="$DEBUG_API_URL" REACT_NATIVE_PACKAGER_HOSTNAME=127.0.0.1 npx expo start "$EXPO_FLAG" --lan
-else
-  REACT_NATIVE_PACKAGER_HOSTNAME=127.0.0.1 npx expo start "$EXPO_FLAG" --lan
-fi
+REACT_NATIVE_PACKAGER_HOSTNAME=127.0.0.1 npx expo start "$EXPO_FLAG" --lan

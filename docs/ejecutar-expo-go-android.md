@@ -25,11 +25,11 @@ adb connect IP_DEL_TELEFONO:PUERTO_ADB
 
 Los puertos de emparejamiento y de conexión pueden ser distintos. No hace falta conectar un cable USB.
 
-## Elegir la API
+## API remota
 
-El archivo `.env` contiene la URL de producción. Para usar la instancia debug, copia `.env.debug.example` a `.env.debug` y cambia `EXPO_PUBLIC_API_URL` por el dominio HTTPS de tu backend debug. Mientras exista `.env.debug`, `npm run start:adb` y `npm run start:expo-go` usarán esa URL. Para volver a producción, quita o renombra `.env.debug` y reinicia Expo.
+El archivo `.env` contiene `EXPO_PUBLIC_API_URL=https://backendaventon.452111.xyz`. El backend utiliza una base de datos u otra según `DEBUG_MODE` en Dokploy, sin cambiar el dominio de la app. Después de modificar `DEBUG_MODE`, redespliega el backend.
 
-El seed se ejecuta manualmente en el contenedor `backend-debug` de Dokploy con `npm run seed:demo`. El arranque de la app no inicia ni necesita backend, scraper o PostgreSQL locales.
+Con `DEBUG_MODE=true`, el seed se ejecuta manualmente en el contenedor `backend` de Dokploy con `npm run seed:demo`. El arranque de la app no inicia ni necesita backend, scraper o PostgreSQL locales.
 
 ## Iniciar y abrir Expo Go
 
@@ -55,10 +55,10 @@ Para volver a cargar la app, pulsa `r` en la terminal de Metro. Para detener la 
 adb devices -l
 adb -s SERIAL_DEL_TELEFONO reverse --list
 curl -fsS http://127.0.0.1:8081/status
-curl -fsS https://backendaventon-debug.452111.xyz/health
+curl -fsS https://backendaventon.452111.xyz/health
 ```
 
-Sustituye el dominio de ejemplo por el que hayas configurado en Dokploy. Si Expo Go ya estaba abierto, el script vuelve a abrir la URL del proyecto en esa aplicación.
+La respuesta de `/health` indica `dataMode: production` o `dataMode: debug`. Si Expo Go ya estaba abierto, el script vuelve a abrir la URL del proyecto en esa aplicación.
 
 ## Límite de Expo Go y el mapa
 
