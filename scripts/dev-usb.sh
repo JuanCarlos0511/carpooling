@@ -3,20 +3,16 @@
 set -Eeuo pipefail
 
 APP_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-WORKSPACE_DIR="$(cd -- "$APP_DIR/.." && pwd)"
-STARTED_PIDS=()
+OPEN_APP_PID=
+DEBUG_API_URL=
 
 cleanup() {
   local exit_code=$?
   trap - EXIT INT TERM
 
-  if ((${#STARTED_PIDS[@]} > 0)); then
-    echo
-    echo "Deteniendo servicios iniciados por este script..."
-    for pid in "${STARTED_PIDS[@]}"; do
-      kill "$pid" 2>/dev/null || true
-    done
-    wait "${STARTED_PIDS[@]}" 2>/dev/null || true
+  if [[ -n "$OPEN_APP_PID" ]]; then
+    kill "$OPEN_APP_PID" 2>/dev/null || true
+    wait "$OPEN_APP_PID" 2>/dev/null || true
   fi
 
   exit "$exit_code"
@@ -31,48 +27,22 @@ require_command() {
   fi
 }
 
-start_service_if_needed() {
-  local name=$1
-  local directory=$2
-  local health_url=$3
-  local log_file="/tmp/hopn-${name}.log"
-
-  if curl -fsS "$health_url" >/dev/null 2>&1; then
-    echo "✓ $name ya está activo"
-    return
-  fi
-
-  echo "Iniciando $name..."
-  (
-    cd "$directory"
-    exec npm run dev
-  ) >"$log_file" 2>&1 &
-  local pid=$!
-  STARTED_PIDS+=("$pid")
-
-  for _ in {1..30}; do
-    if curl -fsS "$health_url" >/dev/null 2>&1; then
-      echo "✓ $name listo"
-      return
-    fi
-
-    if ! kill -0 "$pid" 2>/dev/null; then
-      echo "Error: $name terminó antes de estar listo. Log: $log_file" >&2
-      tail -n 30 "$log_file" >&2 || true
-      exit 1
-    fi
-
-    sleep 1
-  done
-
-  echo "Error: $name no respondió en 30 segundos. Log: $log_file" >&2
-  tail -n 30 "$log_file" >&2 || true
-  exit 1
-}
-
 require_command adb
 require_command curl
 require_command npm
+
+if [[ -f "$APP_DIR/.env.debug" ]]; then
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    if [[ "$line" == EXPO_PUBLIC_API_URL=* ]]; then
+      DEBUG_API_URL="${line#EXPO_PUBLIC_API_URL=}"
+    fi
+  done < "$APP_DIR/.env.debug"
+  if [[ "$DEBUG_API_URL" != https://* ]]; then
+    echo "Error: configura EXPO_PUBLIC_API_URL con el dominio HTTPS del backend debug en .env.debug." >&2
+    exit 1
+  fi
+  echo "✓ API debug: $DEBUG_API_URL"
+fi
 
 if [[ -z "${ADB_SERIAL:-}" ]]; then
   mapfile -t CONNECTED_DEVICES < <(adb devices | awk 'NR > 1 && $2 == "device" { print $1 }')
@@ -116,19 +86,8 @@ else
   EXPO_FLAG="--dev-client"
 fi
 
-start_service_if_needed \
-  "scrap-uat-service" \
-  "$WORKSPACE_DIR/scrap-uat-service" \
-  "http://127.0.0.1:3100/health/ready"
-
-start_service_if_needed \
-  "backend" \
-  "$WORKSPACE_DIR/backend" \
-  "http://127.0.0.1:3200/health"
-
 adb -s "$ADB_SERIAL" reverse tcp:8081 tcp:8081 >/dev/null
-adb -s "$ADB_SERIAL" reverse tcp:3200 tcp:3200 >/dev/null
-echo "✓ ADB reverse: Metro 8081 y backend 3200"
+echo "✓ ADB reverse: Metro 8081"
 
 (
   for _ in {1..60}; do
@@ -145,10 +104,13 @@ echo "✓ ADB reverse: Metro 8081 y backend 3200"
 
   echo "Aviso: Metro no respondió en 60 segundos; abre Carpooling manualmente." >&2
 ) &
+OPEN_APP_PID=$!
 
 echo "Iniciando Metro con Fast Refresh..."
 echo "Presiona Ctrl+C para detener esta sesión."
 cd "$APP_DIR"
-EXPO_PUBLIC_API_URL=http://127.0.0.1:3200 \
-  REACT_NATIVE_PACKAGER_HOSTNAME=127.0.0.1 \
-  npx expo start "$EXPO_FLAG" --lan
+if [[ -n "$DEBUG_API_URL" ]]; then
+  EXPO_PUBLIC_API_URL="$DEBUG_API_URL" REACT_NATIVE_PACKAGER_HOSTNAME=127.0.0.1 npx expo start "$EXPO_FLAG" --lan
+else
+  REACT_NATIVE_PACKAGER_HOSTNAME=127.0.0.1 npx expo start "$EXPO_FLAG" --lan
+fi
