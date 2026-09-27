@@ -9,11 +9,11 @@ import { usePlannedRoute } from '@/features/mobility/hooks/usePlannedRoute';
 import { RouteMap } from '@/features/mobility/components/RouteMap';
 
 type Props = {
-  departureTime: string;
+  firstStopTime?: string;
   waypoints: readonly TripWaypoint[];
 };
 
-export function RouteMapCard({ departureTime, waypoints }: Props) {
+export function RouteMapCard({ firstStopTime, waypoints }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [selectedWaypointId, setSelectedWaypointId] = useState<string | null>(null);
   const [resetViewToken, setResetViewToken] = useState(0);
@@ -36,7 +36,7 @@ export function RouteMapCard({ departureTime, waypoints }: Props) {
           <Navigation2 size={17} color={theme.colors.accentStrong} />
           <Text style={styles.title}>RUTA PLANEADA</Text>
         </View>
-        <Text style={styles.departure}>Salida {departureTime} hrs</Text>
+        {firstStopTime ? <Text style={styles.departure}>Primera parada {firstStopTime} hrs</Text> : null}
       </View>
       <View style={styles.mapContainer}>
         <RouteMap waypoints={waypoints} routeGeometry={route?.geometry ?? null}
@@ -81,9 +81,9 @@ export function RouteMapCard({ departureTime, waypoints }: Props) {
       </View>
       <View style={styles.stops}>
         {waypoints.map((point, index) => (
-          <View key={point.id} style={[styles.stop, index === 1 ? styles.stopMiddle : null,
+          <View key={point.id} style={[styles.stop, index > 0 && index < waypoints.length - 1 ? styles.stopMiddle : null,
             index === waypoints.length - 1 ? styles.stopLast : null]}>
-            <Text style={[styles.stopKind, index === 0 ? styles.originText : null,
+            <Text style={[styles.stopKind, index === 0 ? styles.firstStopText : null,
               index === waypoints.length - 1 ? styles.destinationText : null]} numberOfLines={1}>{point.detail}</Text>
             <Text style={styles.stopName} numberOfLines={2}>{point.name}</Text>
           </View>
@@ -161,7 +161,7 @@ function makeStyles(theme: AppTheme) {
     stopMiddle: { alignItems: 'center' },
     stopLast: { alignItems: 'flex-end' },
     stopKind: { color: colors.textSecondary, fontSize: typography.size.bodySmall, fontWeight: typography.weight.semibold, marginBottom: spacing.xs },
-    originText: { color: colors.accentStrong },
+    firstStopText: { color: colors.accentStrong },
     destinationText: { color: colors.primary },
     stopName: { color: colors.textSecondary, fontSize: typography.size.bodySmall, lineHeight: 17 },
     fullscreen: { flex: 1, backgroundColor: colors.background },

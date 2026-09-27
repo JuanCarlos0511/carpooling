@@ -14,6 +14,11 @@ export function usePlannedRoute(waypoints: readonly Coordinate[]) {
     let active = true;
     const timeout = setTimeout(() => controller.abort(), 12000);
     setRoute(null);
+    if (waypoints.length < 2) {
+      clearTimeout(timeout);
+      setStatus('ready');
+      return () => { active = false; controller.abort(); };
+    }
     setStatus('loading');
     void getPlannedRoute(waypoints, controller.signal)
       .then((result) => {

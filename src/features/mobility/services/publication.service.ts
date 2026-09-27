@@ -15,7 +15,7 @@ export type PublicationStop = {
 export type PublicationTrip = {
   id: string;
   driver: { id: string; fullName: string; photoUrl?: string | null };
-  route: { origin: { name: string }; destination: { name: string } };
+  route: { destination: { name: string } };
   departureAt: string;
   arrivalAt: string;
   capacity: number;
@@ -82,7 +82,7 @@ export function publicationText(trip: PublicationTrip): string {
     ? ` Paso por ${intermediateStops.map((stop) => stop.name).join(', ')}.`
     : '';
   const notes = trip.notes.trim();
-  return `Salgo de ${trip.route.origin.name} hacia ${trip.route.destination.name} el ${formatDeparture(trip.departureAt)}.${passBy}${notes ? ` ${notes}` : ''}`;
+  return `Viaje hacia ${trip.route.destination.name} el ${formatDeparture(trip.departureAt)}.${passBy}${notes ? ` ${notes}` : ''}`;
 }
 
 export function passengerSeats(trip: PublicationTrip): { capacity: number; available: number; occupied: number } {
@@ -92,10 +92,10 @@ export function passengerSeats(trip: PublicationTrip): { capacity: number; avail
 }
 
 export function tripWaypoints(trip: PublicationTrip): TripWaypoint[] {
-  return trip.stops.map((stop) => ({
+  return trip.stops.filter((stop) => stop.kind !== 'origin').map((stop, index) => ({
     id: stop.id,
     name: stop.name,
-    detail: stop.kind === 'origin' ? 'Salida' : stop.kind === 'destination' ? 'Destino' : 'Parada',
+    detail: stop.kind === 'destination' ? 'Destino' : `Parada ${index + 1}`,
     coordinate: [stop.lon, stop.lat],
     arrivalTime: formatHour(stop.scheduledAt),
     status: stop.completedAt ? 'Completada' : 'En camino',

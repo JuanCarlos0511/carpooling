@@ -169,7 +169,7 @@ export function PassengerHome() {
                   );
                 })}
               </View>
-              <Pressable accessibilityRole="link" accessibilityLabel={`Ver detalles de la publicación desde ${trip.route.origin.name}`}
+              <Pressable accessibilityRole="link" accessibilityLabel={`Ver detalles de la publicación hacia ${trip.route.destination.name}`}
                 onPress={() => router.push({ pathname: '/passenger/publicacion/[id]', params: { id: trip.id } })}
                 style={({ pressed }) => [styles.detailsLink, pressed && styles.detailsLinkPressed]}>
                 <Text style={styles.detailsLinkText}>Ver detalles</Text>

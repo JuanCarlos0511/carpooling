@@ -85,15 +85,15 @@ export function PassengerPublicationDetails() {
   );
 
   const seats = passengerSeats(trip);
-  const boardingStops = trip.stops.filter((stop) => stop.kind !== 'destination');
-  const canRequest = trip.status === 'open' && seats.available > 0 && !requested;
+  const boardingStops = trip.stops.filter((stop) => stop.kind === 'stop');
+  const canRequest = trip.status === 'open' && seats.available > 0 && boardingStops.length > 0 && !requested;
 
   return (
     <SafeAreaView style={styles.screen} edges={['bottom']}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.publicationAuthor}><PublicationAuthor driver={trip.driver} /></View>
         <Text style={styles.eyebrow}>PUBLICACIÓN DE VIAJE</Text>
-        <Text accessibilityRole="header" style={styles.title}>{trip.route.origin.name} → {trip.route.destination.name}</Text>
+        <Text accessibilityRole="header" style={styles.title}>Viaje hacia {trip.route.destination.name}</Text>
         <Text style={styles.description}>{publicationText(trip)}</Text>
 
         <View style={styles.summaryCard}>
@@ -108,7 +108,7 @@ export function PassengerPublicationDetails() {
         </View>
 
         <Text style={styles.sectionTitle}>Recorrido</Text>
-        <RouteMapCard departureTime={formatHour(trip.departureAt)} waypoints={tripWaypoints(trip)} />
+        <RouteMapCard firstStopTime={boardingStops[0] ? formatHour(boardingStops[0].scheduledAt) : undefined} waypoints={tripWaypoints(trip)} />
 
         <Text style={styles.sectionTitle}>Paradas y horarios</Text>
         <View style={styles.stopsCard}>
@@ -126,7 +126,7 @@ export function PassengerPublicationDetails() {
         {canRequest ? (
           <>
             <Text style={styles.sectionTitle}>¿Dónde esperarás al conductor?</Text>
-            <Text style={styles.secondary}>Elige el origen o una parada para enviar tu solicitud.</Text>
+            <Text style={styles.secondary}>Elige una parada pública para enviar tu solicitud.</Text>
             <View style={styles.boardingOptions}>
               {boardingStops.map((stop) => {
                 const selected = boardingStopId === stop.id;
@@ -156,7 +156,8 @@ export function PassengerPublicationDetails() {
         ) : (
           <View style={styles.requestNotice}>
             <Text style={styles.requestNoticeText}>{requested ? 'Solicitud enviada. El conductor debe aceptarla.'
-              : trip.status !== 'open' ? 'Esta publicación ya no recibe solicitudes.' : 'No quedan lugares disponibles.'}</Text>
+              : trip.status !== 'open' ? 'Esta publicación ya no recibe solicitudes.'
+                : boardingStops.length === 0 ? 'No hay paradas públicas disponibles para solicitar lugar.' : 'No quedan lugares disponibles.'}</Text>
           </View>
         )}
         {requestError ? <Text accessibilityRole="alert" style={styles.requestError}>{requestError}</Text> : null}

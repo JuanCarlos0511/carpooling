@@ -47,20 +47,20 @@ export function PassengerTripDetails() {
           <View style={styles.divider} />
           <View style={styles.row}>
             <Route size={20} color={theme.colors.accentStrong} />
-            <View style={styles.rowText}><Text style={styles.label}>Ruta</Text><Text style={styles.value}>
-              {trip.trip.route.origin.name} → {trip.trip.route.destination.name}
+            <View style={styles.rowText}><Text style={styles.label}>Destino</Text><Text style={styles.value}>
+              {trip.trip.route.destination.name}
             </Text></View>
           </View>
           <View style={styles.divider} />
           <View style={styles.row}>
             <Clock3 size={20} color={theme.colors.accentStrong} />
             <View style={styles.rowText}><Text style={styles.label}>Hora de encuentro</Text>
-              <Text style={styles.value}>{formatDeparture(trip.boardingStop.scheduledAt)}</Text></View>
+              <Text style={styles.value}>{trip.boardingStop ? formatDeparture(trip.boardingStop.scheduledAt) : 'Confirma con el conductor'}</Text></View>
           </View>
           <View style={styles.divider} />
           <View style={styles.row}>
             <MapPin size={20} color={theme.colors.accentStrong} />
-            <View style={styles.rowText}><Text style={styles.label}>Punto de encuentro</Text><Text style={styles.value}>{trip.boardingStop.name}</Text></View>
+            <View style={styles.rowText}><Text style={styles.label}>Punto de encuentro</Text><Text style={styles.value}>{trip.boardingStop?.name ?? 'Parada pública por confirmar'}</Text></View>
           </View>
         </View>
 

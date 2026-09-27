@@ -26,7 +26,7 @@ export function AgreedTripCard({ agreedTrip, onDetails }: { agreedTrip: AgreedTr
           <View style={styles.driverDetails}>
             <Text style={styles.driverName} numberOfLines={1}>{agreedTrip.trip.driver.fullName}</Text>
             <Text style={styles.routeText} numberOfLines={2}>
-              {agreedTrip.trip.route.origin.name} → {agreedTrip.trip.route.destination.name}
+              Viaje hacia {agreedTrip.trip.route.destination.name}
             </Text>
           </View>
           <View style={styles.pinBlock}>
@@ -37,9 +37,9 @@ export function AgreedTripCard({ agreedTrip, onDetails }: { agreedTrip: AgreedTr
         <View style={styles.separator} />
         <View style={styles.meetingRow}>
           <MapPin size={19} color={theme.colors.accent} />
-          <Text style={styles.meetingText}>Punto de encuentro: <Text style={styles.meetingStrong}>{agreedTrip.boardingStop.name}</Text></Text>
+          <Text style={styles.meetingText}>Punto de encuentro: <Text style={styles.meetingStrong}>{agreedTrip.boardingStop?.name ?? 'Parada pública por confirmar'}</Text></Text>
         </View>
-        <Text style={styles.departureText}>{formatDeparture(agreedTrip.boardingStop.scheduledAt)}</Text>
+        {agreedTrip.boardingStop ? <Text style={styles.departureText}>{formatDeparture(agreedTrip.boardingStop.scheduledAt)}</Text> : null}
         <Pressable accessibilityRole="link" accessibilityLabel="Ver detalles de la ruta activa"
           onPress={onDetails} style={({ pressed }) => [styles.tripDetailsLink, pressed && styles.tripDetailsLinkPressed]}>
           <Text style={styles.tripDetailsLinkText}>Ver detalles</Text>

@@ -11,7 +11,7 @@ type PassengerRequest = {
 export type AgreedTrip = {
   requestId: string;
   trip: PublicationTrip;
-  boardingStop: PublicationStop;
+  boardingStop: PublicationStop | null;
   boardingPin: string | null;
 };
 
@@ -33,11 +33,10 @@ export async function getAgreedTrip(token: string, signal?: AbortSignal): Promis
     .sort((left, right) => new Date(left.trip.departureAt).getTime() - new Date(right.trip.departureAt).getTime())[0];
   if (!request) return null;
   const boardingStop = request.trip.stops.find((stop) => stop.id === request.boardingStopId);
-  if (!boardingStop) throw new Error('El punto de encuentro del viaje no está disponible.');
   return {
     requestId: request.id,
     trip: request.trip,
-    boardingStop,
+    boardingStop: boardingStop ?? null,
     boardingPin: /^\d{4}$/.test(request.boardingPin ?? '') ? request.boardingPin : null,
   };
 }
