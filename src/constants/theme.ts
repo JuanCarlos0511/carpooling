@@ -32,6 +32,9 @@ const lightColors = {
   dangerSurface: 'rgba(239, 68, 68, 0.08)',
   disabledBackground: '#D9ECE8',
   disabledForeground: '#50716B',
+  neutralDisabledBackground: '#E4E8E7',
+  neutralDisabledBorder: '#C6CECC',
+  neutralDisabledForeground: '#68736F',
 } as const;
 
 const darkColors = {
@@ -57,6 +60,9 @@ const darkColors = {
   dangerSurface: 'rgba(239, 68, 68, 0.12)',
   disabledBackground: '#2A2D33',
   disabledForeground: '#9B9FA7',
+  neutralDisabledBackground: '#2A2D33',
+  neutralDisabledBorder: '#555A64',
+  neutralDisabledForeground: '#B8BBC1',
 } as const;
 
 const lightGradients = {

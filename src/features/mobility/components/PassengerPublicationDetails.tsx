@@ -217,8 +217,8 @@ export function PassengerPublicationDetails() {
               style={({ pressed }) => [styles.requestButton, actionDisabled && styles.requestButtonDisabled,
                 pressed && styles.requestButtonPressed]}>
               {submitting ? <ActivityIndicator color={actionForeground} /> : canChange
-                ? <Repeat2 size={20} color={actionDisabled ? theme.colors.accentStrong : actionForeground} />
-                : <UserPlus size={20} color={actionDisabled ? theme.colors.accentStrong : actionForeground} />}
+                ? <Repeat2 size={20} color={actionDisabled ? theme.colors.neutralDisabledForeground : actionForeground} />
+                : <UserPlus size={20} color={actionDisabled ? theme.colors.neutralDisabledForeground : actionForeground} />}
               <Text style={[styles.requestButtonText, actionDisabled && styles.requestButtonTextDisabled]}>
                 {submitting ? 'Guardando…' : cooldownSeconds > 0 ? `Espera ${cooldownSeconds} s` : actionLabel}
               </Text>
@@ -273,10 +273,11 @@ function makeStyles(theme: AppTheme) {
     requestButton: { minHeight: 52, marginTop: spacing.lg, borderRadius: borderRadius.md, backgroundColor: colors.accent,
       flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
     requestButtonPressed: { opacity: 0.82 },
-    requestButtonDisabled: { backgroundColor: colors.accentSoft, borderColor: colors.accentStrong, borderWidth: 1 },
+    requestButtonDisabled: { backgroundColor: colors.neutralDisabledBackground,
+      borderColor: colors.neutralDisabledBorder, borderWidth: 1 },
     requestButtonText: { color: theme.dark ? colors.background : colors.primaryForeground,
       fontSize: typography.size.body, fontWeight: typography.weight.bold },
-    requestButtonTextDisabled: { color: colors.accentStrong },
+    requestButtonTextDisabled: { color: colors.neutralDisabledForeground },
     cancelButton: { minHeight: 44, marginTop: spacing.xs, paddingHorizontal: spacing.sm,
       alignSelf: 'center', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
     cancelButtonText: { color: colors.textSecondary, fontSize: typography.size.bodySmall, fontWeight: typography.weight.semibold },
