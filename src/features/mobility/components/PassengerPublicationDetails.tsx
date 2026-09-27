@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { ShieldCheck, UserPlus } from 'lucide-react-native';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Repeat2, ShieldCheck, UserPlus } from 'lucide-react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GradientFill } from '@/components/ui/GradientFill';
@@ -11,8 +11,9 @@ import { PublicationAuthor } from '@/features/mobility/components/PublicationAut
 import { PublicationSummaryCard } from '@/features/mobility/components/PublicationSummaryCard';
 import { RouteMapCard } from '@/features/mobility/components/RouteMapCard';
 import {
-  formatDeparture, formatHour, getPublication, getPublicationRequestStatus, passengerSeats, publicationText,
-  requestPublicationSeat, tripWaypoints, type PublicationRequestStatus, type PublicationTrip,
+  cancelPublicationRequest, changePublicationBoardingStop, formatDeparture, formatHour, getPublication,
+  getPublicationRequest, passengerSeats, publicationText, requestPublicationSeat, tripWaypoints,
+  type PublicationRequest, type PublicationTrip,
 } from '@/features/mobility/services/publication.service';
 
 export function PassengerPublicationDetails() {
@@ -26,14 +27,21 @@ export function PassengerPublicationDetails() {
   const [reloadToken, setReloadToken] = useState(0);
   const [boardingStopId, setBoardingStopId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
   const [requestError, setRequestError] = useState<string>();
-  const [requestStatus, setRequestStatus] = useState<PublicationRequestStatus | null>(null);
+  const [currentRequest, setCurrentRequest] = useState<PublicationRequest | null>(null);
+  const [clock, setClock] = useState(Date.now());
 
   useEffect(() => {
     setBoardingStopId(null);
     setRequestError(undefined);
-    setRequestStatus(null);
+    setCurrentRequest(null);
   }, [id]);
+
+  useEffect(() => {
+    const timer = setInterval(() => setClock(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useFocusEffect(useCallback(() => {
     const controller = new AbortController();
@@ -42,12 +50,15 @@ export function PassengerPublicationDetails() {
     if (id && accessToken) {
       void Promise.all([
         getPublication(id, controller.signal),
-        getPublicationRequestStatus(id, accessToken, controller.signal),
+        getPublicationRequest(id, accessToken, controller.signal),
       ])
-        .then(([publication, status]) => {
+        .then(([publication, ownRequest]) => {
           if (controller.signal.aborted) return;
           setTrip(publication);
-          setRequestStatus(status);
+          setCurrentRequest(ownRequest);
+          setBoardingStopId(ownRequest && publication.stops.some((stop) => stop.id === ownRequest.boardingStopId && stop.kind === 'stop')
+            ? ownRequest.boardingStopId : null);
+          setClock(Date.now());
         })
         .catch(() => {
           if (!controller.signal.aborted) setLoadError('No fue posible cargar la publicación o consultar tu solicitud.');
@@ -63,17 +74,22 @@ export function PassengerPublicationDetails() {
   }, [id, accessToken, reloadToken]));
 
   async function requestSeat() {
-    if (!trip || !boardingStopId || !accessToken || requestStatus || submitting) return;
+    if (!trip || !boardingStopId || !accessToken || submitting || cancelling) return;
+    if (currentRequest?.status === 'cancelled' && Date.now() < new Date(currentRequest.updatedAt).getTime() + 10_000) return;
+    if (currentRequest && !['pending', 'accepted', 'cancelled'].includes(currentRequest.status)) return;
     setSubmitting(true);
     setRequestError(undefined);
     try {
-      await requestPublicationSeat(trip.id, boardingStopId, accessToken);
-      setRequestStatus('pending');
+      const updated = currentRequest && ['pending', 'accepted'].includes(currentRequest.status)
+        ? await changePublicationBoardingStop(trip.id, boardingStopId, accessToken)
+        : await requestPublicationSeat(trip.id, boardingStopId, accessToken);
+      setCurrentRequest(updated);
     } catch (error) {
       try {
-        const currentStatus = await getPublicationRequestStatus(trip.id, accessToken);
-        if (currentStatus) {
-          setRequestStatus(currentStatus);
+        const savedRequest = await getPublicationRequest(trip.id, accessToken);
+        if (savedRequest && (savedRequest.status !== currentRequest?.status || savedRequest.boardingStopId !== currentRequest?.boardingStopId)) {
+          setCurrentRequest(savedRequest);
+          setBoardingStopId(savedRequest.boardingStopId);
           return;
         }
       } catch { /* Conserva el error original de envío. */ }
@@ -81,6 +97,29 @@ export function PassengerPublicationDetails() {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  async function cancelRequest() {
+    if (!trip || !accessToken || !currentRequest || cancelling || submitting) return;
+    setCancelling(true);
+    setRequestError(undefined);
+    try {
+      const cancelled = await cancelPublicationRequest(trip.id, accessToken);
+      setCurrentRequest(cancelled);
+      setClock(Date.now());
+      void getPublication(trip.id).then(setTrip).catch(() => {});
+    } catch (error) {
+      setRequestError(error instanceof Error ? error.message : 'No fue posible cancelar la solicitud.');
+    } finally {
+      setCancelling(false);
+    }
+  }
+
+  function confirmCancellation() {
+    Alert.alert('Cancelar solicitud', '¿Seguro que quieres cancelar tu solicitud para este viaje?', [
+      { text: 'Volver', style: 'cancel' },
+      { text: 'Sí, cancelar', style: 'destructive', onPress: () => void cancelRequest() },
+    ]);
   }
 
   if (loading) return (
@@ -102,13 +141,31 @@ export function PassengerPublicationDetails() {
 
   const seats = passengerSeats(trip);
   const boardingStops = trip.stops.filter((stop) => stop.kind === 'stop');
-  const canRequest = trip.status === 'open' && seats.available > 0 && boardingStops.length > 0 && !requestStatus;
+  const destination = trip.stops.find((stop) => stop.kind === 'destination');
+  const requestStatus = currentRequest?.status ?? null;
+  const activeRequest = requestStatus === 'pending' || requestStatus === 'accepted';
+  const tripEditable = ['open', 'closed'].includes(trip.status) && new Date(trip.departureAt).getTime() > clock;
+  const canCreate = trip.status === 'open' && seats.available > 0 && boardingStops.length > 0
+    && (!currentRequest || requestStatus === 'cancelled');
+  const canChange = activeRequest && tripEditable;
+  const canSelect = canCreate || canChange;
+  const canCancel = activeRequest && tripEditable;
+  const cooldownSeconds = currentRequest?.status === 'cancelled'
+    ? Math.max(0, Math.ceil((new Date(currentRequest.updatedAt).getTime() + 10_000 - clock) / 1000)) : 0;
+  const actionDisabled = !boardingStopId || submitting || cancelling || cooldownSeconds > 0
+    || (canChange && boardingStopId === currentRequest?.boardingStopId);
+  const actionLabel = canChange ? 'Cambiar tu parada' : requestStatus === 'cancelled' ? 'Volver a solicitar lugar' : 'Pedir un lugar';
   const requestNotice = requestStatus === 'pending' ? 'Solicitud enviada. El conductor debe aceptarla.'
-    : requestStatus === 'accepted' ? 'Tu solicitud fue aceptada. Consulta tu viaje acordado.'
-      : requestStatus === 'rejected' ? 'Tu solicitud fue rechazada. Solo se permite una solicitud por viaje.'
+    : requestStatus === 'accepted' ? 'Tu solicitud fue aceptada. Puedes cambiar tu parada antes de que inicie el viaje.'
+      : requestStatus === 'rejected' ? 'Tu solicitud fue rechazada.'
         : requestStatus === 'completed' ? 'Tu participación en este viaje ya finalizó.'
-          : trip.status !== 'open' ? 'Esta publicación ya no recibe solicitudes.'
-            : boardingStops.length === 0 ? 'No hay paradas públicas disponibles para solicitar lugar.' : 'No quedan lugares disponibles.';
+          : requestStatus === 'cancelled' ? trip.status !== 'open' || seats.available === 0
+            ? 'Solicitud cancelada. Esta publicación ya no recibe solicitudes.'
+            : cooldownSeconds > 0 ? `Solicitud cancelada. Podrás volver a enviarla en ${cooldownSeconds} s.`
+              : 'Solicitud cancelada. Puedes volver a solicitar lugar.'
+            : trip.status !== 'open' ? 'Esta publicación ya no recibe solicitudes.'
+              : boardingStops.length === 0 ? 'No hay paradas públicas disponibles para solicitar lugar.'
+                : seats.available === 0 ? 'No quedan lugares disponibles.' : null;
 
   return (
     <SafeAreaView style={styles.screen} edges={['bottom']}>
@@ -124,53 +181,54 @@ export function PassengerPublicationDetails() {
         <RouteMapCard firstStopTime={boardingStops[0] ? formatHour(boardingStops[0].scheduledAt) : undefined} waypoints={tripWaypoints(trip)} />
 
         <Text style={styles.sectionTitle}>Paradas y horarios</Text>
+        {canSelect ? <Text style={styles.secondary}>Selecciona la parada donde esperarás al conductor.</Text> : null}
         <View style={styles.stopsCard}>
-          {trip.stops.filter((stop) => stop.kind !== 'origin').map((stop, index) => (
-            <View key={stop.id} style={[styles.stopRow, index > 0 && styles.stopBorder]}>
-              <View style={styles.stopNumber}><Text style={styles.stopNumberText}>{stop.kind === 'destination' ? 'D' : index + 1}</Text></View>
-              <View style={styles.stopText}><Text style={styles.stopName}>{stop.name}</Text>
-                <Text style={styles.stopKind}>{stop.kind === 'destination' ? 'Destino' : `Parada ${index + 1}`}
-                  {stop.completedAt ? ' · Completada' : ''}</Text></View>
-              <Text style={styles.stopTime}>{formatHour(stop.scheduledAt)}</Text>
-            </View>
-          ))}
+          {boardingStops.map((stop, index) => {
+            const selected = boardingStopId === stop.id;
+            return (
+              <Pressable key={stop.id} accessibilityRole={canSelect ? 'radio' : undefined}
+                accessibilityState={canSelect ? { selected } : undefined} disabled={!canSelect}
+                onPress={() => setBoardingStopId(stop.id)}
+                style={[styles.stopRow, index > 0 && styles.stopBorder, selected && canSelect && styles.stopRowSelected]}>
+                <View style={styles.stopNumber}><Text style={styles.stopNumberText}>{index + 1}</Text></View>
+                <View style={styles.stopText}><Text style={styles.stopName}>{stop.name}</Text>
+                  <Text style={styles.stopKind}>Parada {index + 1}{stop.completedAt ? ' · Completada' : ''}</Text></View>
+                <Text style={styles.stopTime}>{formatHour(stop.scheduledAt)}</Text>
+                {canSelect ? <View style={[styles.radio, selected && styles.radioSelected]} /> : null}
+              </Pressable>
+            );
+          })}
         </View>
-
-        {canRequest ? (
-          <>
-            <Text style={styles.sectionTitle}>¿Dónde esperarás al conductor?</Text>
-            <Text style={styles.secondary}>Elige una parada pública para enviar tu solicitud.</Text>
-            <View style={styles.boardingOptions}>
-              {boardingStops.map((stop) => {
-                const selected = boardingStopId === stop.id;
-                return (
-                  <Pressable key={stop.id} accessibilityRole="radio" accessibilityState={{ selected }}
-                    onPress={() => setBoardingStopId(stop.id)}
-                    style={[styles.boardingOption, selected && styles.boardingOptionSelected]}>
-                    <View style={[styles.radio, selected && styles.radioSelected]} />
-                    <View style={styles.stopText}><Text style={styles.stopName}>{stop.name}</Text>
-                      <Text style={styles.stopKind}>Pasa a las {formatHour(stop.scheduledAt)} hrs</Text></View>
-                  </Pressable>
-                );
-              })}
-            </View>
-            <Pressable accessibilityRole="button" accessibilityLabel="Pedir un lugar"
-              accessibilityState={{ disabled: !boardingStopId || submitting }}
-              disabled={!boardingStopId || submitting} onPress={() => void requestSeat()}
-              style={({ pressed }) => [styles.requestButton, (!boardingStopId || submitting) && styles.requestButtonDisabled,
+        {destination ? (
+          <View style={styles.destinationCard}>
+            <View style={styles.stopNumber}><Text style={styles.stopNumberText}>D</Text></View>
+            <View style={styles.stopText}><Text style={styles.stopName}>{destination.name}</Text>
+              <Text style={styles.stopKind}>Destino · No es punto de abordaje</Text></View>
+            <Text style={styles.stopTime}>{formatHour(destination.scheduledAt)}</Text>
+          </View>
+        ) : null}
+        {requestNotice ? <View style={styles.requestNotice}><Text style={styles.requestNoticeText}>{requestNotice}</Text></View> : null}
+        {canSelect ? (
+            <Pressable accessibilityRole="button" accessibilityLabel={actionLabel}
+              accessibilityState={{ disabled: actionDisabled }}
+              disabled={actionDisabled} onPress={() => void requestSeat()}
+              style={({ pressed }) => [styles.requestButton, actionDisabled && styles.requestButtonDisabled,
                 pressed && styles.requestButtonPressed]}>
-              {boardingStopId && !submitting ? <GradientFill dominantStart /> : null}
-              {submitting ? <ActivityIndicator color={theme.colors.white} /> : <UserPlus size={20} color={boardingStopId ? theme.colors.white : theme.colors.disabledForeground} />}
-              <Text style={[styles.requestButtonText, !boardingStopId && styles.requestButtonTextDisabled]}>
-                {submitting ? 'Enviando solicitud…' : 'Pedir un lugar'}
+              {!actionDisabled && !submitting ? <GradientFill dominantStart /> : null}
+              {submitting ? <ActivityIndicator color={theme.colors.white} /> : canChange
+                ? <Repeat2 size={20} color={actionDisabled ? theme.colors.disabledForeground : theme.colors.white} />
+                : <UserPlus size={20} color={actionDisabled ? theme.colors.disabledForeground : theme.colors.white} />}
+              <Text style={[styles.requestButtonText, actionDisabled && styles.requestButtonTextDisabled]}>
+                {submitting ? 'Guardando…' : cooldownSeconds > 0 ? `Espera ${cooldownSeconds} s` : actionLabel}
               </Text>
             </Pressable>
-          </>
-        ) : (
-          <View style={styles.requestNotice}>
-            <Text style={styles.requestNoticeText}>{requestNotice}</Text>
-          </View>
-        )}
+        ) : null}
+        {canCancel ? (
+          <Pressable accessibilityRole="button" disabled={submitting || cancelling} onPress={confirmCancellation} style={styles.cancelButton}>
+            {cancelling ? <ActivityIndicator size="small" color={theme.colors.danger} /> : null}
+            <Text style={styles.cancelButtonText}>{cancelling ? 'Cancelando…' : 'Cancelar solicitud'}</Text>
+          </Pressable>
+        ) : null}
         {requestError ? <Text accessibilityRole="alert" style={styles.requestError}>{requestError}</Text> : null}
         <View style={styles.verified}><ShieldCheck size={17} color={theme.colors.textMuted} />
           <Text style={styles.verifiedText}>Comunidad universitaria verificada</Text></View>
@@ -193,9 +251,13 @@ function makeStyles(theme: AppTheme) {
     sectionTitle: { color: colors.textPrimary, fontSize: typography.size.subtitle, fontWeight: typography.weight.bold,
       marginTop: spacing.xl, marginBottom: spacing.md },
     stopsCard: { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, borderRadius: borderRadius.lg,
-      paddingHorizontal: spacing.md },
-    stopRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.md },
+      paddingHorizontal: spacing.md, marginTop: spacing.sm },
+    stopRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: 66, paddingVertical: spacing.md },
+    stopRowSelected: { backgroundColor: colors.accentSoft },
     stopBorder: { borderTopColor: colors.border, borderTopWidth: 1 },
+    destinationCard: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: 66, padding: spacing.md,
+      marginTop: spacing.sm, backgroundColor: colors.surfaceElevated, borderColor: colors.border,
+      borderWidth: 1, borderRadius: borderRadius.lg },
     stopNumber: { width: 26, height: 26, borderRadius: 13, backgroundColor: colors.accentSoft,
       alignItems: 'center', justifyContent: 'center' },
     stopNumberText: { color: colors.accentStrong, fontSize: typography.size.bodySmall, fontWeight: typography.weight.bold },
@@ -206,10 +268,6 @@ function makeStyles(theme: AppTheme) {
     secondary: { color: colors.textSecondary, fontSize: typography.size.body, lineHeight: 21 },
     retryButton: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing.md },
     retryText: { color: colors.accentStrong, fontSize: typography.size.body, fontWeight: typography.weight.bold },
-    boardingOptions: { gap: spacing.sm, marginTop: spacing.md },
-    boardingOption: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, minHeight: 58,
-      padding: spacing.md, backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, borderRadius: borderRadius.md },
-    boardingOptionSelected: { borderColor: colors.accentStrong, backgroundColor: colors.accentSoft },
     radio: { width: 18, height: 18, borderRadius: 9, borderWidth: 2, borderColor: colors.borderStrong },
     radioSelected: { borderColor: colors.accentStrong, backgroundColor: colors.accentStrong },
     requestButton: { minHeight: 52, marginTop: spacing.lg, borderRadius: borderRadius.md, backgroundColor: colors.accent,
@@ -218,6 +276,9 @@ function makeStyles(theme: AppTheme) {
     requestButtonDisabled: { backgroundColor: colors.disabledBackground },
     requestButtonText: { color: colors.white, fontSize: typography.size.body, fontWeight: typography.weight.bold },
     requestButtonTextDisabled: { color: colors.disabledForeground },
+    cancelButton: { minHeight: 48, marginTop: spacing.sm, borderWidth: 1, borderColor: colors.danger,
+      borderRadius: borderRadius.md, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
+    cancelButtonText: { color: colors.danger, fontSize: typography.size.body, fontWeight: typography.weight.semibold },
     requestNotice: { backgroundColor: colors.surfaceElevated, borderColor: colors.border, borderWidth: 1,
       borderRadius: borderRadius.md, padding: spacing.md, marginTop: spacing.lg },
     requestNoticeText: { color: colors.textSecondary, fontSize: typography.size.body, lineHeight: 21 },

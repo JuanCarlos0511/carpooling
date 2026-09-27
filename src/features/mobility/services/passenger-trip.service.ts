@@ -2,7 +2,7 @@ import type { PublicationStop, PublicationTrip } from '@/features/mobility/servi
 
 type PassengerRequest = {
   id: string;
-  status: 'pending' | 'accepted' | 'rejected' | 'completed';
+  status: 'pending' | 'accepted' | 'rejected' | 'completed' | 'cancelled';
   boardingStopId: string;
   boardingPin: string | null;
   trip: PublicationTrip;

@@ -1,6 +1,13 @@
 import type { TripWaypoint } from '@/features/mobility/data/passenger-home.data';
 
-export type PublicationRequestStatus = 'pending' | 'accepted' | 'rejected' | 'completed';
+export type PublicationRequestStatus = 'pending' | 'accepted' | 'rejected' | 'completed' | 'cancelled';
+export type PublicationRequest = {
+  id: string;
+  tripId: string;
+  boardingStopId: string;
+  status: PublicationRequestStatus;
+  updatedAt: string;
+};
 
 export type PublicationStop = {
   id: string;
@@ -54,21 +61,41 @@ export async function getPublication(id: string, signal?: AbortSignal): Promise<
   return payload.trip;
 }
 
-export async function getPublicationRequestStatus(tripId: string, accessToken: string, signal?: AbortSignal): Promise<PublicationRequestStatus | null> {
+export async function getPublicationRequest(tripId: string, accessToken: string, signal?: AbortSignal): Promise<PublicationRequest | null> {
   const response = await fetch(endpoint('/users/me/trips'), {
     headers: { Accept: 'application/json', Authorization: `Bearer ${accessToken}` }, signal,
   });
-  const payload = await readResponse<{ requests: Array<{ tripId: string; status: PublicationRequestStatus }> }>(response);
-  return payload.requests.find((request) => request.tripId === tripId)?.status ?? null;
+  const payload = await readResponse<{ requests: PublicationRequest[] }>(response);
+  return payload.requests.find((request) => request.tripId === tripId) ?? null;
 }
 
-export async function requestPublicationSeat(tripId: string, boardingStopId: string, accessToken: string): Promise<void> {
+export async function requestPublicationSeat(tripId: string, boardingStopId: string, accessToken: string): Promise<PublicationRequest> {
   const response = await fetch(endpoint(`/trips/${encodeURIComponent(tripId)}/requests`), {
     method: 'POST',
     headers: { Accept: 'application/json', 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
     body: JSON.stringify({ boardingStopId }),
   });
-  await readResponse(response);
+  const payload = await readResponse<{ request: PublicationRequest }>(response);
+  return payload.request;
+}
+
+export async function changePublicationBoardingStop(tripId: string, boardingStopId: string, accessToken: string): Promise<PublicationRequest> {
+  const response = await fetch(endpoint(`/trips/${encodeURIComponent(tripId)}/my-request`), {
+    method: 'PATCH',
+    headers: { Accept: 'application/json', 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+    body: JSON.stringify({ boardingStopId }),
+  });
+  const payload = await readResponse<{ request: PublicationRequest }>(response);
+  return payload.request;
+}
+
+export async function cancelPublicationRequest(tripId: string, accessToken: string): Promise<PublicationRequest> {
+  const response = await fetch(endpoint(`/trips/${encodeURIComponent(tripId)}/my-request`), {
+    method: 'DELETE',
+    headers: { Accept: 'application/json', Authorization: `Bearer ${accessToken}` },
+  });
+  const payload = await readResponse<{ request: PublicationRequest }>(response);
+  return payload.request;
 }
 
 export function formatDeparture(iso: string): string {
