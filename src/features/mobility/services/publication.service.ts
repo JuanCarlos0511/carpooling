@@ -1,5 +1,6 @@
 import type { TripWaypoint } from '@/features/mobility/data/passenger-home.data';
-import { secureStorage } from '@/services/storage/secure-storage.service';
+
+export type PublicationRequestStatus = 'pending' | 'accepted' | 'rejected' | 'completed';
 
 export type PublicationStop = {
   id: string;
@@ -53,12 +54,18 @@ export async function getPublication(id: string, signal?: AbortSignal): Promise<
   return payload.trip;
 }
 
-export async function requestPublicationSeat(tripId: string, boardingStopId: string): Promise<void> {
-  const token = await secureStorage.getAccessToken();
-  if (!token) throw new Error('Inicia sesión para solicitar un lugar.');
+export async function getPublicationRequestStatus(tripId: string, accessToken: string, signal?: AbortSignal): Promise<PublicationRequestStatus | null> {
+  const response = await fetch(endpoint('/users/me/trips'), {
+    headers: { Accept: 'application/json', Authorization: `Bearer ${accessToken}` }, signal,
+  });
+  const payload = await readResponse<{ requests: Array<{ tripId: string; status: PublicationRequestStatus }> }>(response);
+  return payload.requests.find((request) => request.tripId === tripId)?.status ?? null;
+}
+
+export async function requestPublicationSeat(tripId: string, boardingStopId: string, accessToken: string): Promise<void> {
   const response = await fetch(endpoint(`/trips/${encodeURIComponent(tripId)}/requests`), {
     method: 'POST',
-    headers: { Accept: 'application/json', 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    headers: { Accept: 'application/json', 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
     body: JSON.stringify({ boardingStopId }),
   });
   await readResponse(response);

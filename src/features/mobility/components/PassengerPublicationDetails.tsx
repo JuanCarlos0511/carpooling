@@ -6,18 +6,20 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GradientFill } from '@/components/ui/GradientFill';
 import { type AppTheme, useAppTheme } from '@/constants/theme';
+import { useAuth } from '@/features/auth/context/AuthContext';
 import { PublicationAuthor } from '@/features/mobility/components/PublicationAuthor';
 import { PublicationSummaryCard } from '@/features/mobility/components/PublicationSummaryCard';
 import { RouteMapCard } from '@/features/mobility/components/RouteMapCard';
 import {
-  formatDeparture, formatHour, getPublication, passengerSeats, publicationText, requestPublicationSeat,
-  tripWaypoints, type PublicationTrip,
+  formatDeparture, formatHour, getPublication, getPublicationRequestStatus, passengerSeats, publicationText,
+  requestPublicationSeat, tripWaypoints, type PublicationRequestStatus, type PublicationTrip,
 } from '@/features/mobility/services/publication.service';
 
 export function PassengerPublicationDetails() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const theme = useAppTheme();
   const styles = makeStyles(theme);
+  const { accessToken } = useAuth();
   const [trip, setTrip] = useState<PublicationTrip | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string>();
@@ -25,42 +27,56 @@ export function PassengerPublicationDetails() {
   const [boardingStopId, setBoardingStopId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [requestError, setRequestError] = useState<string>();
-  const [requested, setRequested] = useState(false);
+  const [requestStatus, setRequestStatus] = useState<PublicationRequestStatus | null>(null);
 
   useEffect(() => {
     setBoardingStopId(null);
     setRequestError(undefined);
-    setRequested(false);
+    setRequestStatus(null);
   }, [id]);
 
   useFocusEffect(useCallback(() => {
     const controller = new AbortController();
     setLoading(true);
     setLoadError(undefined);
-    if (id) {
-      void getPublication(id, controller.signal)
-        .then((publication) => setTrip(publication))
+    if (id && accessToken) {
+      void Promise.all([
+        getPublication(id, controller.signal),
+        getPublicationRequestStatus(id, accessToken, controller.signal),
+      ])
+        .then(([publication, status]) => {
+          if (controller.signal.aborted) return;
+          setTrip(publication);
+          setRequestStatus(status);
+        })
         .catch(() => {
-          if (!controller.signal.aborted) setLoadError('No fue posible cargar esta publicación.');
+          if (!controller.signal.aborted) setLoadError('No fue posible cargar la publicación o consultar tu solicitud.');
         })
         .finally(() => {
           if (!controller.signal.aborted) setLoading(false);
         });
     } else {
-      setLoadError('Falta el identificador de la publicación.');
+      setLoadError(id ? 'Inicia sesión para consultar tus solicitudes.' : 'Falta el identificador de la publicación.');
       setLoading(false);
     }
     return () => controller.abort();
-  }, [id, reloadToken]));
+  }, [id, accessToken, reloadToken]));
 
   async function requestSeat() {
-    if (!trip || !boardingStopId || submitting) return;
+    if (!trip || !boardingStopId || !accessToken || requestStatus || submitting) return;
     setSubmitting(true);
     setRequestError(undefined);
     try {
-      await requestPublicationSeat(trip.id, boardingStopId);
-      setRequested(true);
+      await requestPublicationSeat(trip.id, boardingStopId, accessToken);
+      setRequestStatus('pending');
     } catch (error) {
+      try {
+        const currentStatus = await getPublicationRequestStatus(trip.id, accessToken);
+        if (currentStatus) {
+          setRequestStatus(currentStatus);
+          return;
+        }
+      } catch { /* Conserva el error original de envío. */ }
       setRequestError(error instanceof Error ? error.message : 'No fue posible enviar la solicitud.');
     } finally {
       setSubmitting(false);
@@ -86,7 +102,13 @@ export function PassengerPublicationDetails() {
 
   const seats = passengerSeats(trip);
   const boardingStops = trip.stops.filter((stop) => stop.kind === 'stop');
-  const canRequest = trip.status === 'open' && seats.available > 0 && boardingStops.length > 0 && !requested;
+  const canRequest = trip.status === 'open' && seats.available > 0 && boardingStops.length > 0 && !requestStatus;
+  const requestNotice = requestStatus === 'pending' ? 'Solicitud enviada. El conductor debe aceptarla.'
+    : requestStatus === 'accepted' ? 'Tu solicitud fue aceptada. Consulta tu viaje acordado.'
+      : requestStatus === 'rejected' ? 'Tu solicitud fue rechazada. Solo se permite una solicitud por viaje.'
+        : requestStatus === 'completed' ? 'Tu participación en este viaje ya finalizó.'
+          : trip.status !== 'open' ? 'Esta publicación ya no recibe solicitudes.'
+            : boardingStops.length === 0 ? 'No hay paradas públicas disponibles para solicitar lugar.' : 'No quedan lugares disponibles.';
 
   return (
     <SafeAreaView style={styles.screen} edges={['bottom']}>
@@ -146,9 +168,7 @@ export function PassengerPublicationDetails() {
           </>
         ) : (
           <View style={styles.requestNotice}>
-            <Text style={styles.requestNoticeText}>{requested ? 'Solicitud enviada. El conductor debe aceptarla.'
-              : trip.status !== 'open' ? 'Esta publicación ya no recibe solicitudes.'
-                : boardingStops.length === 0 ? 'No hay paradas públicas disponibles para solicitar lugar.' : 'No quedan lugares disponibles.'}</Text>
+            <Text style={styles.requestNoticeText}>{requestNotice}</Text>
           </View>
         )}
         {requestError ? <Text accessibilityRole="alert" style={styles.requestError}>{requestError}</Text> : null}
