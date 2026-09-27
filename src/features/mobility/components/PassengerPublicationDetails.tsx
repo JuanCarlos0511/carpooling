@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { CarFront, Clock3, MapPin, ShieldCheck, UserPlus, UserRound } from 'lucide-react-native';
+import { CarFront, ShieldCheck, UserPlus } from 'lucide-react-native';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GradientFill } from '@/components/ui/GradientFill';
 import { type AppTheme, useAppTheme } from '@/constants/theme';
+import { PublicationAuthor } from '@/features/mobility/components/PublicationAuthor';
+import { PublicationTiming } from '@/features/mobility/components/PublicationTiming';
 import { RouteMapCard } from '@/features/mobility/components/RouteMapCard';
 import {
   formatDeparture, formatHour, getPublication, passengerSeats, publicationText, requestPublicationSeat,
@@ -89,17 +91,13 @@ export function PassengerPublicationDetails() {
   return (
     <SafeAreaView style={styles.screen} edges={['bottom']}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <View style={styles.publicationAuthor}><PublicationAuthor driver={trip.driver} /></View>
         <Text style={styles.eyebrow}>PUBLICACIÓN DE VIAJE</Text>
         <Text accessibilityRole="header" style={styles.title}>{trip.route.origin.name} → {trip.route.destination.name}</Text>
         <Text style={styles.description}>{publicationText(trip)}</Text>
 
         <View style={styles.summaryCard}>
-          <View style={styles.detailRow}><UserRound size={19} color={theme.colors.accentStrong} />
-            <Text style={styles.detailText}>Conduce <Text style={styles.detailStrong}>{trip.driver.fullName}</Text></Text></View>
-          <View style={styles.detailRow}><Clock3 size={19} color={theme.colors.accentStrong} />
-            <Text style={styles.detailText}>Salida <Text style={styles.detailStrong}>{formatDeparture(trip.departureAt)}</Text></Text></View>
-          <View style={styles.detailRow}><MapPin size={19} color={theme.colors.accentStrong} />
-            <Text style={styles.detailText}>Llegada estimada <Text style={styles.detailStrong}>{formatHour(trip.arrivalAt)} hrs</Text></Text></View>
+          <PublicationTiming trip={trip} />
           <View style={styles.divider} />
           <View style={styles.metricRow}>
             <View><Text style={styles.metricLabel}>APORTACIÓN TOTAL</Text><Text style={styles.metricValue}>${trip.price} MXN</Text></View>
@@ -174,16 +172,14 @@ function makeStyles(theme: AppTheme) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
     content: { width: '100%', maxWidth: 620, alignSelf: 'center', padding: spacing.md, paddingBottom: spacing.xxl },
+    publicationAuthor: { marginTop: spacing.sm, marginBottom: spacing.lg },
     state: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md, padding: spacing.lg },
     eyebrow: { color: colors.accentStrong, fontSize: typography.size.label, fontWeight: typography.weight.bold,
       letterSpacing: typography.letterSpacing.label, marginTop: spacing.sm },
     title: { color: colors.textPrimary, fontSize: typography.size.title, fontWeight: typography.weight.bold, lineHeight: 35, marginTop: spacing.xs },
     description: { color: colors.textSecondary, fontSize: typography.size.body, lineHeight: 23, marginTop: spacing.md, marginBottom: spacing.lg },
     summaryCard: { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, borderRadius: borderRadius.lg, padding: spacing.md },
-    detailRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, marginBottom: spacing.md },
-    detailText: { color: colors.textSecondary, fontSize: typography.size.bodySmall, lineHeight: 19, flex: 1 },
-    detailStrong: { color: colors.textPrimary, fontWeight: typography.weight.semibold },
-    divider: { height: 1, backgroundColor: colors.border, marginBottom: spacing.md },
+    divider: { height: 1, backgroundColor: colors.border, marginVertical: spacing.md },
     metricRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm },
     metricLabel: { color: colors.textMuted, fontSize: typography.size.label, fontWeight: typography.weight.bold,
       letterSpacing: typography.letterSpacing.label },

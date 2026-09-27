@@ -9,6 +9,8 @@ import { type AppTheme, useAppTheme } from '@/constants/theme';
 import { useAuth } from '@/features/auth/context/AuthContext';
 import { AgreedTripCard } from '@/features/mobility/components/AgreedTripCard';
 import { PassengerAvatar } from '@/features/mobility/components/PassengerAvatar';
+import { PublicationAuthor } from '@/features/mobility/components/PublicationAuthor';
+import { PublicationTiming } from '@/features/mobility/components/PublicationTiming';
 import { passengerHomeData } from '@/features/mobility/data/passenger-home.data';
 import { useAgreedTrip } from '@/features/mobility/hooks/useAgreedTrip';
 import { getOpenPublications, passengerSeats, publicationText, type PublicationTrip } from '@/features/mobility/services/publication.service';
@@ -138,7 +140,9 @@ export function PassengerHome() {
           const seats = passengerSeats(trip);
           return (
             <View key={trip.id} style={styles.feedCard}>
+              <View style={styles.publicationAuthor}><PublicationAuthor driver={trip.driver} /></View>
               <Text style={styles.description}>{publicationText(trip)}</Text>
+              <View style={styles.schedulePanel}><PublicationTiming trip={trip} /></View>
               <View style={styles.priceBadge}>
                 <Text style={styles.priceLabel}>APORTACIÓN TOTAL</Text>
                 <Text style={styles.priceValue}>${trip.price}<Text style={styles.currency}> MXN</Text></Text>
@@ -203,6 +207,9 @@ function makeStyles(theme: AppTheme) {
     sectionTitle: { color: colors.textPrimary, fontSize: 21, fontWeight: typography.weight.bold, lineHeight: 27 },
     feedHeading: { marginTop: spacing.xl },
     feedCard: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: borderRadius.lg,
+      padding: spacing.md, marginBottom: spacing.md },
+    publicationAuthor: { marginBottom: spacing.md },
+    schedulePanel: { backgroundColor: colors.surfaceElevated, borderRadius: borderRadius.md,
       padding: spacing.md, marginBottom: spacing.md },
     feedStatus: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: borderRadius.lg,
       padding: spacing.lg, alignItems: 'center', gap: spacing.sm },

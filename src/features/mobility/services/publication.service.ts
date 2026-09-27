@@ -14,7 +14,7 @@ export type PublicationStop = {
 
 export type PublicationTrip = {
   id: string;
-  driver: { id: string; fullName: string };
+  driver: { id: string; fullName: string; photoUrl?: string | null };
   route: { origin: { name: string }; destination: { name: string } };
   departureAt: string;
   arrivalAt: string;
