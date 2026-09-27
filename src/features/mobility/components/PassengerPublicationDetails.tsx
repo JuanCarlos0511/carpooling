@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { Info, Repeat2, ShieldCheck, UserPlus, XCircle } from 'lucide-react-native';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { ArrowLeft, Info, Repeat2, ShieldCheck, UserPlus, XCircle } from 'lucide-react-native';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -17,6 +17,7 @@ import {
 
 export function PassengerPublicationDetails() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
   const theme = useAppTheme();
   const styles = makeStyles(theme);
   const { accessToken } = useAuth();
@@ -121,14 +122,31 @@ export function PassengerPublicationDetails() {
     ]);
   }
 
+  function goBack() {
+    if (router.canGoBack()) router.back();
+    else router.replace('/passenger/principal');
+  }
+
+  const backButton = (
+    <View style={styles.backBar}>
+      <Pressable accessibilityRole="button" accessibilityLabel="Regresar a viajes de la comunidad"
+        onPress={goBack} style={({ pressed }) => [styles.backButton, pressed && styles.backButtonPressed]}>
+        <ArrowLeft size={20} color={theme.colors.textSecondary} />
+        <Text style={styles.backButtonText}>Regresar</Text>
+      </Pressable>
+    </View>
+  );
+
   if (loading) return (
-    <SafeAreaView style={styles.screen} edges={['bottom']}>
+    <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
+      {backButton}
       <View style={styles.state}><ActivityIndicator color={theme.colors.accentStrong} /><Text style={styles.secondary}>Cargando publicación…</Text></View>
     </SafeAreaView>
   );
 
   if (loadError || !trip) return (
-    <SafeAreaView style={styles.screen} edges={['bottom']}>
+    <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
+      {backButton}
       <View style={styles.state}>
         <Text accessibilityRole="alert" style={styles.secondary}>{loadError ?? 'La publicación no está disponible.'}</Text>
         <Pressable accessibilityRole="button" onPress={() => setReloadToken((value) => value + 1)} style={styles.retryButton}>
@@ -168,7 +186,8 @@ export function PassengerPublicationDetails() {
                 : seats.available === 0 ? 'No quedan lugares disponibles.' : null;
 
   return (
-    <SafeAreaView style={styles.screen} edges={['bottom']}>
+    <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
+      {backButton}
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.publicationCard}>
           <View style={styles.publicationAuthor}><PublicationAuthor driver={trip.driver} /></View>
@@ -246,6 +265,12 @@ function makeStyles(theme: AppTheme) {
   const { colors, spacing, borderRadius, typography } = theme;
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
+    backBar: { width: '100%', maxWidth: 620, alignSelf: 'center', paddingHorizontal: spacing.md, paddingTop: spacing.xs },
+    backButton: { minHeight: 44, alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center',
+      gap: spacing.sm, paddingHorizontal: spacing.sm },
+    backButtonPressed: { opacity: 0.7 },
+    backButtonText: { color: colors.textSecondary, fontSize: typography.size.bodySmall,
+      fontWeight: typography.weight.semibold },
     content: { width: '100%', maxWidth: 620, alignSelf: 'center', padding: spacing.md, paddingBottom: spacing.xxl },
     publicationCard: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,
       borderRadius: borderRadius.lg, padding: spacing.md },
