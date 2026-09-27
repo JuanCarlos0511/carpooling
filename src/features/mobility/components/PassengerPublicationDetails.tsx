@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { Repeat2, ShieldCheck, UserPlus } from 'lucide-react-native';
+import { Info, Repeat2, ShieldCheck, UserPlus, XCircle } from 'lucide-react-native';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { GradientFill } from '@/components/ui/GradientFill';
 import { type AppTheme, useAppTheme } from '@/constants/theme';
 import { useAuth } from '@/features/auth/context/AuthContext';
 import { PublicationAuthor } from '@/features/mobility/components/PublicationAuthor';
@@ -154,6 +153,7 @@ export function PassengerPublicationDetails() {
     ? Math.max(0, Math.ceil((new Date(currentRequest.updatedAt).getTime() + 10_000 - clock) / 1000)) : 0;
   const actionDisabled = !boardingStopId || submitting || cancelling || cooldownSeconds > 0
     || (canChange && boardingStopId === currentRequest?.boardingStopId);
+  const actionForeground = theme.dark ? theme.colors.background : theme.colors.primaryForeground;
   const actionLabel = canChange ? 'Cambiar tu parada' : requestStatus === 'cancelled' ? 'Volver a solicitar lugar' : 'Pedir un lugar';
   const requestNotice = requestStatus === 'pending' ? 'Solicitud enviada. El conductor debe aceptarla.'
     : requestStatus === 'accepted' ? 'Tu solicitud fue aceptada. Puedes cambiar tu parada antes de que inicie el viaje.'
@@ -170,12 +170,11 @@ export function PassengerPublicationDetails() {
   return (
     <SafeAreaView style={styles.screen} edges={['bottom']}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.publicationAuthor}><PublicationAuthor driver={trip.driver} /></View>
-        <Text style={styles.eyebrow}>PUBLICACIÓN DE VIAJE</Text>
-        <Text accessibilityRole="header" style={styles.title}>Viaje hacia {trip.route.destination.name}</Text>
-        <Text style={styles.description}>{publicationText(trip)}</Text>
-
-        <PublicationSummaryCard trip={trip} />
+        <View style={styles.publicationCard}>
+          <View style={styles.publicationAuthor}><PublicationAuthor driver={trip.driver} /></View>
+          <Text style={styles.description}>{publicationText(trip)}</Text>
+          <PublicationSummaryCard trip={trip} />
+        </View>
 
         <Text style={styles.sectionTitle}>Recorrido</Text>
         <RouteMapCard firstStopTime={boardingStops[0] ? formatHour(boardingStops[0].scheduledAt) : undefined} waypoints={tripWaypoints(trip)} />
@@ -189,7 +188,7 @@ export function PassengerPublicationDetails() {
               <Pressable key={stop.id} accessibilityRole={canSelect ? 'radio' : undefined}
                 accessibilityState={canSelect ? { selected } : undefined} disabled={!canSelect}
                 onPress={() => setBoardingStopId(stop.id)}
-                style={[styles.stopRow, index > 0 && styles.stopBorder, selected && canSelect && styles.stopRowSelected]}>
+                style={[styles.stopRow, selected && canSelect && styles.stopRowSelected]}>
                 <View style={styles.stopNumber}><Text style={styles.stopNumberText}>{index + 1}</Text></View>
                 <View style={styles.stopText}><Text style={styles.stopName}>{stop.name}</Text>
                   <Text style={styles.stopKind}>Parada {index + 1}{stop.completedAt ? ' · Completada' : ''}</Text></View>
@@ -207,17 +206,19 @@ export function PassengerPublicationDetails() {
             <Text style={styles.stopTime}>{formatHour(destination.scheduledAt)}</Text>
           </View>
         ) : null}
-        {requestNotice ? <View style={styles.requestNotice}><Text style={styles.requestNoticeText}>{requestNotice}</Text></View> : null}
+        {requestNotice ? <View style={styles.requestNotice}>
+          <Info size={18} color={theme.colors.accentStrong} />
+          <Text style={styles.requestNoticeText}>{requestNotice}</Text>
+        </View> : null}
         {canSelect ? (
             <Pressable accessibilityRole="button" accessibilityLabel={actionLabel}
               accessibilityState={{ disabled: actionDisabled }}
               disabled={actionDisabled} onPress={() => void requestSeat()}
               style={({ pressed }) => [styles.requestButton, actionDisabled && styles.requestButtonDisabled,
                 pressed && styles.requestButtonPressed]}>
-              {!actionDisabled && !submitting ? <GradientFill dominantStart /> : null}
-              {submitting ? <ActivityIndicator color={theme.colors.white} /> : canChange
-                ? <Repeat2 size={20} color={actionDisabled ? theme.colors.disabledForeground : theme.colors.white} />
-                : <UserPlus size={20} color={actionDisabled ? theme.colors.disabledForeground : theme.colors.white} />}
+              {submitting ? <ActivityIndicator color={actionForeground} /> : canChange
+                ? <Repeat2 size={20} color={actionDisabled ? theme.colors.accentStrong : actionForeground} />
+                : <UserPlus size={20} color={actionDisabled ? theme.colors.accentStrong : actionForeground} />}
               <Text style={[styles.requestButtonText, actionDisabled && styles.requestButtonTextDisabled]}>
                 {submitting ? 'Guardando…' : cooldownSeconds > 0 ? `Espera ${cooldownSeconds} s` : actionLabel}
               </Text>
@@ -225,7 +226,8 @@ export function PassengerPublicationDetails() {
         ) : null}
         {canCancel ? (
           <Pressable accessibilityRole="button" disabled={submitting || cancelling} onPress={confirmCancellation} style={styles.cancelButton}>
-            {cancelling ? <ActivityIndicator size="small" color={theme.colors.danger} /> : null}
+            {cancelling ? <ActivityIndicator size="small" color={theme.colors.textSecondary} />
+              : <XCircle size={17} color={theme.colors.textSecondary} />}
             <Text style={styles.cancelButtonText}>{cancelling ? 'Cancelando…' : 'Cancelar solicitud'}</Text>
           </Pressable>
         ) : null}
@@ -242,21 +244,19 @@ function makeStyles(theme: AppTheme) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
     content: { width: '100%', maxWidth: 620, alignSelf: 'center', padding: spacing.md, paddingBottom: spacing.xxl },
-    publicationAuthor: { marginTop: spacing.sm, marginBottom: spacing.lg },
+    publicationCard: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,
+      borderRadius: borderRadius.lg, padding: spacing.md },
+    publicationAuthor: { marginBottom: spacing.md },
     state: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md, padding: spacing.lg },
-    eyebrow: { color: colors.accentStrong, fontSize: typography.size.label, fontWeight: typography.weight.bold,
-      letterSpacing: typography.letterSpacing.label, marginTop: spacing.sm },
-    title: { color: colors.textPrimary, fontSize: typography.size.title, fontWeight: typography.weight.bold, lineHeight: 35, marginTop: spacing.xs },
-    description: { color: colors.textSecondary, fontSize: typography.size.body, lineHeight: 23, marginTop: spacing.md, marginBottom: spacing.lg },
+    description: { color: colors.textSecondary, fontSize: typography.size.body, lineHeight: 23, marginBottom: spacing.md },
     sectionTitle: { color: colors.textPrimary, fontSize: typography.size.subtitle, fontWeight: typography.weight.bold,
       marginTop: spacing.xl, marginBottom: spacing.md },
-    stopsCard: { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, borderRadius: borderRadius.lg,
-      paddingHorizontal: spacing.md, marginTop: spacing.sm },
-    stopRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: 66, paddingVertical: spacing.md },
-    stopRowSelected: { backgroundColor: colors.accentSoft },
-    stopBorder: { borderTopColor: colors.border, borderTopWidth: 1 },
+    stopsCard: { gap: spacing.sm, marginTop: spacing.sm },
+    stopRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: 66, padding: spacing.md,
+      backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, borderRadius: borderRadius.lg },
+    stopRowSelected: { borderColor: colors.accentStrong, backgroundColor: colors.accentSoft },
     destinationCard: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: 66, padding: spacing.md,
-      marginTop: spacing.sm, backgroundColor: colors.surfaceElevated, borderColor: colors.border,
+      marginTop: spacing.sm, backgroundColor: colors.surface, borderColor: colors.border,
       borderWidth: 1, borderRadius: borderRadius.lg },
     stopNumber: { width: 26, height: 26, borderRadius: 13, backgroundColor: colors.accentSoft,
       alignItems: 'center', justifyContent: 'center' },
@@ -271,17 +271,18 @@ function makeStyles(theme: AppTheme) {
     radio: { width: 18, height: 18, borderRadius: 9, borderWidth: 2, borderColor: colors.borderStrong },
     radioSelected: { borderColor: colors.accentStrong, backgroundColor: colors.accentStrong },
     requestButton: { minHeight: 52, marginTop: spacing.lg, borderRadius: borderRadius.md, backgroundColor: colors.accent,
-      overflow: 'hidden', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
     requestButtonPressed: { opacity: 0.82 },
-    requestButtonDisabled: { backgroundColor: colors.disabledBackground },
-    requestButtonText: { color: colors.white, fontSize: typography.size.body, fontWeight: typography.weight.bold },
-    requestButtonTextDisabled: { color: colors.disabledForeground },
-    cancelButton: { minHeight: 48, marginTop: spacing.sm, borderWidth: 1, borderColor: colors.danger,
-      borderRadius: borderRadius.md, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
-    cancelButtonText: { color: colors.danger, fontSize: typography.size.body, fontWeight: typography.weight.semibold },
-    requestNotice: { backgroundColor: colors.surfaceElevated, borderColor: colors.border, borderWidth: 1,
-      borderRadius: borderRadius.md, padding: spacing.md, marginTop: spacing.lg },
-    requestNoticeText: { color: colors.textSecondary, fontSize: typography.size.body, lineHeight: 21 },
+    requestButtonDisabled: { backgroundColor: colors.accentSoft, borderColor: colors.accentStrong, borderWidth: 1 },
+    requestButtonText: { color: theme.dark ? colors.background : colors.primaryForeground,
+      fontSize: typography.size.body, fontWeight: typography.weight.bold },
+    requestButtonTextDisabled: { color: colors.accentStrong },
+    cancelButton: { minHeight: 44, marginTop: spacing.xs, paddingHorizontal: spacing.sm,
+      alignSelf: 'center', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
+    cancelButtonText: { color: colors.textSecondary, fontSize: typography.size.bodySmall, fontWeight: typography.weight.semibold },
+    requestNotice: { backgroundColor: colors.accentSoft, borderColor: colors.border, borderWidth: 1,
+      borderRadius: borderRadius.md, padding: spacing.md, marginTop: spacing.lg, flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    requestNoticeText: { color: colors.textSecondary, fontSize: typography.size.bodySmall, lineHeight: 19, flex: 1 },
     requestError: { color: colors.danger, fontSize: typography.size.bodySmall, marginTop: spacing.sm },
     verified: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: spacing.xl },
     verifiedText: { color: colors.textMuted, fontSize: typography.size.bodySmall },
