@@ -114,11 +114,11 @@ export function PassengerPublicationDetails() {
 
         <Text style={styles.sectionTitle}>Paradas y horarios</Text>
         <View style={styles.stopsCard}>
-          {trip.stops.map((stop, index) => (
+          {trip.stops.filter((stop) => stop.kind !== 'origin').map((stop, index) => (
             <View key={stop.id} style={[styles.stopRow, index > 0 && styles.stopBorder]}>
-              <View style={styles.stopNumber}><Text style={styles.stopNumberText}>{index + 1}</Text></View>
+              <View style={styles.stopNumber}><Text style={styles.stopNumberText}>{stop.kind === 'destination' ? 'D' : index + 1}</Text></View>
               <View style={styles.stopText}><Text style={styles.stopName}>{stop.name}</Text>
-                <Text style={styles.stopKind}>{stop.kind === 'origin' ? 'Salida' : stop.kind === 'destination' ? 'Destino' : 'Parada'}
+                <Text style={styles.stopKind}>{stop.kind === 'destination' ? 'Destino' : `Parada ${index + 1}`}
                   {stop.completedAt ? ' · Completada' : ''}</Text></View>
               <Text style={styles.stopTime}>{formatHour(stop.scheduledAt)}</Text>
             </View>
