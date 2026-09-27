@@ -112,11 +112,12 @@ export function formatHour(iso: string): string {
 
 export function publicationText(trip: PublicationTrip): string {
   const intermediateStops = trip.stops.filter((stop) => stop.kind === 'stop');
+  const firstStopTime = intermediateStops[0]?.scheduledAt ?? trip.departureAt;
   const passBy = intermediateStops.length > 0
     ? ` Paso por ${intermediateStops.map((stop) => stop.name).join(', ')}.`
     : '';
   const notes = trip.notes.trim();
-  return `Viaje hacia ${trip.route.destination.name} el ${formatDeparture(trip.departureAt)}.${passBy}${notes ? ` ${notes}` : ''}`;
+  return `Viaje hacia ${trip.route.destination.name} el ${formatDeparture(firstStopTime)}.${passBy}${notes ? ` ${notes}` : ''}`;
 }
 
 export function passengerSeats(trip: PublicationTrip): { capacity: number; available: number; occupied: number } {

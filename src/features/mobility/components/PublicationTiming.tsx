@@ -4,16 +4,17 @@ import { StyleSheet, Text, View } from 'react-native';
 import { type AppTheme, useAppTheme } from '@/constants/theme';
 import { formatDeparture, formatHour, type PublicationTrip } from '@/features/mobility/services/publication.service';
 
-export function PublicationTiming({ trip }: { trip: Pick<PublicationTrip, 'departureAt' | 'arrivalAt'> }) {
+export function PublicationTiming({ trip }: { trip: Pick<PublicationTrip, 'stops' | 'arrivalAt'> }) {
   const theme = useAppTheme();
   const styles = makeStyles(theme);
+  const firstStop = trip.stops.find((stop) => stop.kind === 'stop');
 
   return (
     <View style={styles.group}>
-      <View style={styles.row}>
+      {firstStop ? <View style={styles.row}>
         <Clock3 size={19} color={theme.colors.accentStrong} />
-        <Text style={styles.text}>Salida <Text style={styles.strong}>{formatDeparture(trip.departureAt)}</Text></Text>
-      </View>
+        <Text style={styles.text}>Primera parada <Text style={styles.strong}>{formatDeparture(firstStop.scheduledAt)}</Text></Text>
+      </View> : null}
       <View style={styles.row}>
         <MapPin size={19} color={theme.colors.accentStrong} />
         <Text style={styles.text}>Llegada estimada <Text style={styles.strong}>{formatHour(trip.arrivalAt)} hrs</Text></Text>
