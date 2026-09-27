@@ -12,7 +12,7 @@ export type PublicationRequest = {
 export type PublicationStop = {
   id: string;
   position: number;
-  kind: 'origin' | 'stop' | 'destination';
+  kind: 'stop' | 'destination';
   name: string;
   lat: number;
   lon: number;
@@ -146,7 +146,7 @@ export function passengerSeats(trip: PublicationTrip): { capacity: number; avail
 }
 
 export function tripWaypoints(trip: PublicationTrip): TripWaypoint[] {
-  return trip.stops.filter((stop) => stop.kind !== 'origin').map((stop, index) => ({
+  return trip.stops.map((stop, index) => ({
     id: stop.id,
     name: stop.name,
     detail: stop.kind === 'destination' ? 'Destino' : `Parada ${index + 1}`,
