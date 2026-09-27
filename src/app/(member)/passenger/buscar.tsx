@@ -1,5 +1,5 @@
-import { View } from 'react-native';
+import { PassengerSearch } from '@/features/mobility/components/PassengerSearch';
 
 export default function PassengerSearchScreen() {
-  return <View style={{ flex: 1 }} />;
+  return <PassengerSearch />;
 }

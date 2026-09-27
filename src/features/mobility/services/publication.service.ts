@@ -33,7 +33,13 @@ export type PublicationTrip = {
   status: 'open' | 'closed' | 'in_progress' | 'completed' | 'cancelled';
   stops: PublicationStop[];
   createdAt: string;
+  nearestStop?: { id: string; name: string; distanceMeters: number };
 };
+
+export type SearchLocation = { lat: number; lon: number };
+export type PublicationSearchFilters = { q: string; location: SearchLocation | null; offset?: number };
+export type PublicationSearchPage = { trips: PublicationTrip[]; hasMore: boolean };
+export const PUBLICATION_SEARCH_RADIUS_METERS = 1500;
 
 export type PublicationRequestWithTrip = PublicationRequest & { trip: PublicationTrip };
 
@@ -56,6 +62,17 @@ export async function getOpenPublications(signal?: AbortSignal): Promise<Publica
   const response = await fetch(endpoint('/trips'), { headers: { Accept: 'application/json' }, signal });
   const payload = await readResponse<{ trips: PublicationTrip[] }>(response);
   return payload.trips;
+}
+
+export async function searchPublications(filters: PublicationSearchFilters, signal?: AbortSignal): Promise<PublicationSearchPage> {
+  const params = new URLSearchParams({ q: filters.q.trim(), limit: '20', offset: String(filters.offset ?? 0) });
+  if (filters.location) {
+    params.set('lat', String(filters.location.lat));
+    params.set('lon', String(filters.location.lon));
+    params.set('radiusMeters', String(PUBLICATION_SEARCH_RADIUS_METERS));
+  }
+  const response = await fetch(endpoint(`/trips/search?${params}`), { headers: { Accept: 'application/json' }, signal });
+  return readResponse<PublicationSearchPage>(response);
 }
 
 export async function getPublication(id: string, signal?: AbortSignal): Promise<PublicationTrip> {

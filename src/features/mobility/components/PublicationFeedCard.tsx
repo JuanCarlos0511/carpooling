@@ -1,4 +1,4 @@
-import { Send } from 'lucide-react-native';
+import { MapPin, Send } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { type AppTheme, useAppTheme } from '@/constants/theme';
@@ -28,6 +28,13 @@ export function PublicationFeedCard({ trip, hasRequest = false, onDetails }: Pub
         ) : null}
       </View>
       <Text style={styles.description}>{publicationText(trip)}</Text>
+      {trip.nearestStop ? (
+        <View style={styles.nearestStop}>
+          <MapPin size={16} color={theme.colors.accentStrong} />
+          <Text style={styles.nearestStopText}>Parada más cercana: {trip.nearestStop.name} · a {trip.nearestStop.distanceMeters < 1000
+            ? `${trip.nearestStop.distanceMeters} m` : `${(trip.nearestStop.distanceMeters / 1000).toFixed(1)} km`} en línea recta</Text>
+        </View>
+      ) : null}
       <PublicationSummaryCard trip={trip} />
       <Pressable accessibilityRole="link" accessibilityLabel={`Ver detalles de la publicación hacia ${trip.route.destination.name}`}
         onPress={() => onDetails(trip.id)}
@@ -50,6 +57,8 @@ function makeStyles(theme: AppTheme) {
     requestBadgeText: { color: colors.accentStrong, fontSize: typography.size.label,
       fontWeight: typography.weight.bold },
     description: { color: colors.textSecondary, fontSize: typography.size.body, lineHeight: 23, marginBottom: spacing.md },
+    nearestStop: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginBottom: spacing.md },
+    nearestStopText: { flex: 1, color: colors.accentStrong, fontSize: typography.size.bodySmall, lineHeight: 19 },
     detailsLink: { alignSelf: 'flex-end', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing.xs, marginTop: spacing.sm },
     detailsLinkPressed: { opacity: 0.65 },
     detailsLinkText: { color: colors.accentStrong, fontSize: typography.size.body, fontWeight: typography.weight.bold },
