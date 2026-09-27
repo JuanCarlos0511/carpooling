@@ -2,9 +2,9 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { type AppTheme, useAppTheme } from '@/constants/theme';
 import { PassengerAvatar } from '@/features/mobility/components/PassengerAvatar';
-import type { PublicationTrip } from '@/features/mobility/services/publication.service';
+import { formatPublicationDate, type PublicationTrip } from '@/features/mobility/services/publication.service';
 
-export function PublicationAuthor({ driver }: { driver: PublicationTrip['driver'] }) {
+export function PublicationAuthor({ driver, publishedAt }: { driver: PublicationTrip['driver']; publishedAt: string }) {
   const theme = useAppTheme();
   const styles = makeStyles(theme);
 
@@ -13,7 +13,7 @@ export function PublicationAuthor({ driver }: { driver: PublicationTrip['driver'
       <PassengerAvatar name={driver.fullName} photoUrl={driver.photoUrl} size={44} theme={theme} />
       <View style={styles.text}>
         <Text style={styles.name} numberOfLines={1}>{driver.fullName}</Text>
-        <Text style={styles.caption}>Conductor</Text>
+        <Text style={styles.caption}>{formatPublicationDate(publishedAt)}</Text>
       </View>
     </View>
   );

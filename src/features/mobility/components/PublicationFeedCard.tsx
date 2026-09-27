@@ -20,7 +20,7 @@ export function PublicationFeedCard({ trip, hasRequest = false }: PublicationFee
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <View style={styles.author}><PublicationAuthor driver={trip.driver} /></View>
+        <View style={styles.author}><PublicationAuthor driver={trip.driver} publishedAt={trip.createdAt} /></View>
         {hasRequest ? (
           <View accessible accessibilityLabel="Solicitud enviada" style={styles.requestBadge}>
             <Send size={13} color={theme.colors.accentStrong} />

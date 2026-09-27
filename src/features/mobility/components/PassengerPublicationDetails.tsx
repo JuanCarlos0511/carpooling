@@ -190,7 +190,7 @@ export function PassengerPublicationDetails() {
       {backButton}
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.publicationCard}>
-          <View style={styles.publicationAuthor}><PublicationAuthor driver={trip.driver} /></View>
+          <View style={styles.publicationAuthor}><PublicationAuthor driver={trip.driver} publishedAt={trip.createdAt} /></View>
           <Text style={styles.description}>{publicationText(trip)}</Text>
           <PublicationSummaryCard trip={trip} />
         </View>

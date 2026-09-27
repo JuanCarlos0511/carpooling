@@ -32,6 +32,7 @@ export type PublicationTrip = {
   notes: string;
   status: 'open' | 'closed' | 'in_progress' | 'completed' | 'cancelled';
   stops: PublicationStop[];
+  createdAt: string;
 };
 
 export type PublicationRequestWithTrip = PublicationRequest & { trip: PublicationTrip };
@@ -119,6 +120,13 @@ export function formatHour(iso: string): string {
   return new Intl.DateTimeFormat('es-MX', {
     timeZone: 'America/Mexico_City', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
   }).format(new Date(iso));
+}
+
+export function formatPublicationDate(iso: string): string {
+  const date = new Intl.DateTimeFormat('es-MX', {
+    timeZone: 'America/Mexico_City', day: 'numeric', month: 'short', year: 'numeric',
+  }).format(new Date(iso));
+  return `${date} · ${formatHour(iso)}`;
 }
 
 export function publicationText(trip: PublicationTrip): string {
