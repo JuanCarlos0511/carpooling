@@ -1,4 +1,3 @@
-import { useRouter } from 'expo-router';
 import { Send } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -10,12 +9,12 @@ import { publicationText, type PublicationTrip } from '@/features/mobility/servi
 type PublicationFeedCardProps = {
   trip: PublicationTrip;
   hasRequest?: boolean;
+  onDetails: (tripId: string) => void;
 };
 
-export function PublicationFeedCard({ trip, hasRequest = false }: PublicationFeedCardProps) {
+export function PublicationFeedCard({ trip, hasRequest = false, onDetails }: PublicationFeedCardProps) {
   const theme = useAppTheme();
   const styles = makeStyles(theme);
-  const router = useRouter();
 
   return (
     <View style={styles.card}>
@@ -31,7 +30,7 @@ export function PublicationFeedCard({ trip, hasRequest = false }: PublicationFee
       <Text style={styles.description}>{publicationText(trip)}</Text>
       <PublicationSummaryCard trip={trip} />
       <Pressable accessibilityRole="link" accessibilityLabel={`Ver detalles de la publicación hacia ${trip.route.destination.name}`}
-        onPress={() => router.push({ pathname: '/passenger/publicacion/[id]', params: { id: trip.id } })}
+        onPress={() => onDetails(trip.id)}
         style={({ pressed }) => [styles.detailsLink, pressed && styles.detailsLinkPressed]}>
         <Text style={styles.detailsLinkText}>Ver detalles</Text>
       </Pressable>

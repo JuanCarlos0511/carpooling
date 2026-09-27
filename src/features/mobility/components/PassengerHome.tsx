@@ -12,6 +12,7 @@ import { PassengerAvatar } from '@/features/mobility/components/PassengerAvatar'
 import { PublicationFeedCard } from '@/features/mobility/components/PublicationFeedCard';
 import { passengerHomeData } from '@/features/mobility/data/passenger-home.data';
 import { useAgreedTrip } from '@/features/mobility/hooks/useAgreedTrip';
+import { usePassengerDetailsNavigation } from '@/features/mobility/hooks/usePassengerDetailsNavigation';
 import { getMyPublicationRequests, getOpenPublications, hasActivePublicationRequest,
   type PublicationTrip } from '@/features/mobility/services/publication.service';
 
@@ -20,6 +21,7 @@ export function PassengerHome() {
   const router = useRouter();
   const { user, accessToken, logout, changeRole } = useAuth();
   const { trip: agreedTrip, error: agreedTripError, retry: retryAgreedTrip } = useAgreedTrip(accessToken);
+  const { openPublication, openAgreedTrip } = usePassengerDetailsNavigation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [switching, setSwitching] = useState(false);
@@ -114,7 +116,7 @@ export function PassengerHome() {
           </View>
         ) : null}
 
-        {agreedTrip ? <AgreedTripCard agreedTrip={agreedTrip} onDetails={() => router.push('/passenger/detalles')} /> : null}
+        {agreedTrip ? <AgreedTripCard agreedTrip={agreedTrip} onDetails={openAgreedTrip} /> : null}
 
         <View style={[styles.sectionHeading, agreedTrip && styles.feedHeading]}>
           <View>
@@ -144,7 +146,8 @@ export function PassengerHome() {
           </View>
         ) : publications.length === 0 ? (
           <View style={styles.feedStatus}><Text style={styles.feedStatusText}>Todavía no hay publicaciones abiertas con lugares disponibles.</Text></View>
-        ) : publications.map((trip) => <PublicationFeedCard key={trip.id} trip={trip} hasRequest={requestedTripIds.has(trip.id)} />)}
+        ) : publications.map((trip) => <PublicationFeedCard key={trip.id} trip={trip}
+          hasRequest={requestedTripIds.has(trip.id)} onDetails={openPublication} />)}
         <Text style={styles.bottomNote}>Viaja acompañado, llega mejor.</Text>
       </ScrollView>
     </SafeAreaView>

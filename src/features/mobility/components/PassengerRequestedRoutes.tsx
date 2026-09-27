@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { type AppTheme, useAppTheme } from '@/constants/theme';
 import { useAuth } from '@/features/auth/context/AuthContext';
 import { PublicationFeedCard } from '@/features/mobility/components/PublicationFeedCard';
+import { usePassengerDetailsNavigation } from '@/features/mobility/hooks/usePassengerDetailsNavigation';
 import { getMyPublicationRequests, hasActivePublicationRequest,
   type PublicationRequestWithTrip } from '@/features/mobility/services/publication.service';
 
@@ -13,6 +14,7 @@ export function PassengerRequestedRoutes() {
   const theme = useAppTheme();
   const styles = makeStyles(theme);
   const { accessToken } = useAuth();
+  const { openPublication } = usePassengerDetailsNavigation();
   const [requests, setRequests] = useState<PublicationRequestWithTrip[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>();
@@ -44,7 +46,7 @@ export function PassengerRequestedRoutes() {
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <FlatList data={loading || error ? [] : requests} keyExtractor={(request) => request.id}
-        renderItem={({ item }) => <PublicationFeedCard trip={item.trip} hasRequest />}
+        renderItem={({ item }) => <PublicationFeedCard trip={item.trip} hasRequest onDetails={openPublication} />}
         contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}
         ListHeaderComponent={<View style={styles.heading}>
           <Text style={styles.eyebrow}>TUS SOLICITUDES</Text>
