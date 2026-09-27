@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { CarFront, ShieldCheck, UserPlus } from 'lucide-react-native';
+import { ShieldCheck, UserPlus } from 'lucide-react-native';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GradientFill } from '@/components/ui/GradientFill';
 import { type AppTheme, useAppTheme } from '@/constants/theme';
 import { PublicationAuthor } from '@/features/mobility/components/PublicationAuthor';
-import { PublicationTiming } from '@/features/mobility/components/PublicationTiming';
+import { PublicationSummaryCard } from '@/features/mobility/components/PublicationSummaryCard';
 import { RouteMapCard } from '@/features/mobility/components/RouteMapCard';
 import {
   formatDeparture, formatHour, getPublication, passengerSeats, publicationText, requestPublicationSeat,
@@ -96,16 +96,7 @@ export function PassengerPublicationDetails() {
         <Text accessibilityRole="header" style={styles.title}>Viaje hacia {trip.route.destination.name}</Text>
         <Text style={styles.description}>{publicationText(trip)}</Text>
 
-        <View style={styles.summaryCard}>
-          <PublicationTiming trip={trip} />
-          <View style={styles.divider} />
-          <View style={styles.metricRow}>
-            <View><Text style={styles.metricLabel}>APORTACIÓN TOTAL</Text><Text style={styles.metricValue}>${trip.price} MXN</Text></View>
-            <View style={styles.seatsMetric}><CarFront size={18} color={theme.colors.accentStrong} />
-              <Text style={styles.seatsMetricText}>{seats.available} de {seats.capacity} libres</Text></View>
-          </View>
-          <Text style={styles.capacityNote}>Los lugares corresponden solo a pasajeros.</Text>
-        </View>
+        <PublicationSummaryCard trip={trip} />
 
         <Text style={styles.sectionTitle}>Recorrido</Text>
         <RouteMapCard firstStopTime={boardingStops[0] ? formatHour(boardingStops[0].scheduledAt) : undefined} waypoints={tripWaypoints(trip)} />
@@ -179,15 +170,6 @@ function makeStyles(theme: AppTheme) {
       letterSpacing: typography.letterSpacing.label, marginTop: spacing.sm },
     title: { color: colors.textPrimary, fontSize: typography.size.title, fontWeight: typography.weight.bold, lineHeight: 35, marginTop: spacing.xs },
     description: { color: colors.textSecondary, fontSize: typography.size.body, lineHeight: 23, marginTop: spacing.md, marginBottom: spacing.lg },
-    summaryCard: { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, borderRadius: borderRadius.lg, padding: spacing.md },
-    divider: { height: 1, backgroundColor: colors.border, marginVertical: spacing.md },
-    metricRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm },
-    metricLabel: { color: colors.textMuted, fontSize: typography.size.label, fontWeight: typography.weight.bold,
-      letterSpacing: typography.letterSpacing.label },
-    metricValue: { color: colors.textPrimary, fontSize: 22, fontWeight: typography.weight.bold, marginTop: spacing.xs },
-    seatsMetric: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-    seatsMetricText: { color: colors.accentStrong, fontSize: typography.size.bodySmall, fontWeight: typography.weight.semibold },
-    capacityNote: { color: colors.textMuted, fontSize: typography.size.bodySmall, marginTop: spacing.sm },
     sectionTitle: { color: colors.textPrimary, fontSize: typography.size.subtitle, fontWeight: typography.weight.bold,
       marginTop: spacing.xl, marginBottom: spacing.md },
     stopsCard: { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, borderRadius: borderRadius.lg,

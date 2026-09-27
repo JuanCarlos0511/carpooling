@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { CarFront, LogOut, Repeat2, Route, UserRound, UsersRound } from 'lucide-react-native';
+import { LogOut, Repeat2, Route, UsersRound } from 'lucide-react-native';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -10,10 +10,10 @@ import { useAuth } from '@/features/auth/context/AuthContext';
 import { AgreedTripCard } from '@/features/mobility/components/AgreedTripCard';
 import { PassengerAvatar } from '@/features/mobility/components/PassengerAvatar';
 import { PublicationAuthor } from '@/features/mobility/components/PublicationAuthor';
-import { PublicationTiming } from '@/features/mobility/components/PublicationTiming';
+import { PublicationSummaryCard } from '@/features/mobility/components/PublicationSummaryCard';
 import { passengerHomeData } from '@/features/mobility/data/passenger-home.data';
 import { useAgreedTrip } from '@/features/mobility/hooks/useAgreedTrip';
-import { getOpenPublications, passengerSeats, publicationText, type PublicationTrip } from '@/features/mobility/services/publication.service';
+import { getOpenPublications, publicationText, type PublicationTrip } from '@/features/mobility/services/publication.service';
 
 export function PassengerHome() {
   const theme = useAppTheme();
@@ -136,47 +136,18 @@ export function PassengerHome() {
           </View>
         ) : publications.length === 0 ? (
           <View style={styles.feedStatus}><Text style={styles.feedStatusText}>Todavía no hay publicaciones abiertas con lugares disponibles.</Text></View>
-        ) : publications.map((trip) => {
-          const seats = passengerSeats(trip);
-          return (
-            <View key={trip.id} style={styles.feedCard}>
-              <View style={styles.publicationAuthor}><PublicationAuthor driver={trip.driver} /></View>
-              <Text style={styles.description}>{publicationText(trip)}</Text>
-              <View style={styles.schedulePanel}><PublicationTiming trip={trip} /></View>
-              <View style={styles.priceBadge}>
-                <Text style={styles.priceLabel}>APORTACIÓN TOTAL</Text>
-                <Text style={styles.priceValue}>${trip.price}<Text style={styles.currency}> MXN</Text></Text>
-              </View>
-              <View style={styles.seatsHeader}>
-                <View style={styles.seatsTitleRow}>
-                  <CarFront size={20} color={theme.colors.textPrimary} />
-                  <Text style={styles.seatsTitle}>Asientos para pasajeros</Text>
-                </View>
-                <View style={styles.freeBadge}><Text style={styles.freeBadgeText}>{seats.available} libres</Text></View>
-              </View>
-              <Text style={styles.capacityText}>{seats.capacity} lugares para pasajeros en total</Text>
-              <View style={styles.seatsRow} accessible accessibilityLabel={`${seats.occupied} asientos ocupados y ${seats.available} libres para pasajeros`}>
-                {Array.from({ length: seats.capacity }, (_, index) => {
-                  const occupied = index < seats.occupied;
-                  return (
-                    <View key={index} style={styles.seatItem}>
-                      <View style={[styles.seatIcon, occupied ? styles.seatOccupied : styles.seatFree]}>
-                        <UserRound size={21} strokeWidth={2.1} color={occupied ? theme.colors.textMuted : theme.colors.accentStrong} />
-                        {occupied ? <View style={styles.seatSlash} /> : null}
-                      </View>
-                      <Text style={styles.seatCaption}>{occupied ? 'Ocup.' : 'Libre'}</Text>
-                    </View>
-                  );
-                })}
-              </View>
-              <Pressable accessibilityRole="link" accessibilityLabel={`Ver detalles de la publicación hacia ${trip.route.destination.name}`}
-                onPress={() => router.push({ pathname: '/passenger/publicacion/[id]', params: { id: trip.id } })}
-                style={({ pressed }) => [styles.detailsLink, pressed && styles.detailsLinkPressed]}>
-                <Text style={styles.detailsLinkText}>Ver detalles</Text>
-              </Pressable>
-            </View>
-          );
-        })}
+        ) : publications.map((trip) => (
+          <View key={trip.id} style={styles.feedCard}>
+            <View style={styles.publicationAuthor}><PublicationAuthor driver={trip.driver} /></View>
+            <Text style={styles.description}>{publicationText(trip)}</Text>
+            <PublicationSummaryCard trip={trip} />
+            <Pressable accessibilityRole="link" accessibilityLabel={`Ver detalles de la publicación hacia ${trip.route.destination.name}`}
+              onPress={() => router.push({ pathname: '/passenger/publicacion/[id]', params: { id: trip.id } })}
+              style={({ pressed }) => [styles.detailsLink, pressed && styles.detailsLinkPressed]}>
+              <Text style={styles.detailsLinkText}>Ver detalles</Text>
+            </Pressable>
+          </View>
+        ))}
         <Text style={styles.bottomNote}>Viaja acompañado, llega mejor.</Text>
       </ScrollView>
     </SafeAreaView>
@@ -209,32 +180,11 @@ function makeStyles(theme: AppTheme) {
     feedCard: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: borderRadius.lg,
       padding: spacing.md, marginBottom: spacing.md },
     publicationAuthor: { marginBottom: spacing.md },
-    schedulePanel: { backgroundColor: colors.surfaceElevated, borderRadius: borderRadius.md,
-      padding: spacing.md, marginBottom: spacing.md },
     feedStatus: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: borderRadius.lg,
       padding: spacing.lg, alignItems: 'center', gap: spacing.sm },
     feedStatusText: { color: colors.textSecondary, fontSize: typography.size.body, lineHeight: 22, textAlign: 'center' },
     retryButton: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing.md },
-    priceBadge: { backgroundColor: colors.surfaceElevated, borderColor: colors.border, borderWidth: 1, borderRadius: borderRadius.md,
-      flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm,
-      paddingVertical: spacing.sm, paddingHorizontal: spacing.md },
-    priceLabel: { color: colors.textMuted, fontSize: 10, letterSpacing: 0.5, fontWeight: typography.weight.bold },
-    priceValue: { color: colors.textPrimary, fontSize: 18, fontWeight: typography.weight.bold, marginTop: 2 },
-    currency: { color: colors.textSecondary, fontSize: typography.size.label, fontWeight: typography.weight.regular },
     description: { color: colors.textSecondary, fontSize: typography.size.body, lineHeight: 23, marginBottom: spacing.md },
-    seatsHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing.lg },
-    seatsTitleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flexShrink: 1 },
-    seatsTitle: { color: colors.textPrimary, fontSize: typography.size.subtitle, fontWeight: typography.weight.semibold },
-    freeBadge: { borderColor: colors.accentStrong, borderWidth: 1, borderRadius: borderRadius.full, paddingHorizontal: spacing.sm, paddingVertical: spacing.xs },
-    freeBadgeText: { color: colors.accentStrong, fontSize: typography.size.bodySmall, fontWeight: typography.weight.semibold },
-    capacityText: { color: colors.textMuted, fontSize: typography.size.bodySmall, marginTop: spacing.xs },
-    seatsRow: { flexDirection: 'row', alignSelf: 'flex-end', gap: spacing.sm, marginTop: spacing.md },
-    seatItem: { alignItems: 'center', gap: spacing.xs },
-    seatIcon: { width: 33, height: 37, borderRadius: borderRadius.sm, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
-    seatOccupied: { backgroundColor: colors.surfaceElevated, borderColor: colors.borderStrong },
-    seatFree: { backgroundColor: colors.accentSoft, borderColor: colors.accentStrong, borderStyle: 'dashed' },
-    seatSlash: { position: 'absolute', width: 29, height: 2, borderRadius: 1, backgroundColor: colors.textMuted, transform: [{ rotate: '-45deg' }] },
-    seatCaption: { color: colors.textMuted, fontSize: typography.size.caption },
     detailsLink: { alignSelf: 'flex-end', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing.xs, marginTop: spacing.sm },
     detailsLinkPressed: { opacity: 0.65 },
     detailsLinkText: { color: colors.accentStrong, fontSize: typography.size.body, fontWeight: typography.weight.bold },
