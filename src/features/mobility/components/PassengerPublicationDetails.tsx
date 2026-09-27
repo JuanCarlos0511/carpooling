@@ -282,7 +282,7 @@ function makeStyles(theme: AppTheme) {
       borderColor: colors.neutralDisabledBorder, borderWidth: 1 },
     requestButtonText: { color: theme.dark ? colors.background : colors.primaryForeground,
       fontSize: typography.size.body, fontWeight: typography.weight.bold },
-    requestButtonTextDisabled: { color: colors.neutralDisabledForeground },
+    requestButtonTextDisabled: { color: colors.neutralDisabledForeground, textDecorationLine: 'line-through' },
     cancelButton: { minHeight: 44, marginTop: spacing.xs, paddingHorizontal: spacing.sm,
       alignSelf: 'center', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
     cancelButtonText: { color: colors.textSecondary, fontSize: typography.size.bodySmall, fontWeight: typography.weight.semibold },
