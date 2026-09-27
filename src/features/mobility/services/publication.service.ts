@@ -34,6 +34,8 @@ export type PublicationTrip = {
   stops: PublicationStop[];
 };
 
+export type PublicationRequestWithTrip = PublicationRequest & { trip: PublicationTrip };
+
 const API_ROOT = (process.env.EXPO_PUBLIC_API_URL ?? '').replace(/\/$/, '');
 
 async function readResponse<T>(response: Response): Promise<T> {
@@ -61,12 +63,21 @@ export async function getPublication(id: string, signal?: AbortSignal): Promise<
   return payload.trip;
 }
 
-export async function getPublicationRequest(tripId: string, accessToken: string, signal?: AbortSignal): Promise<PublicationRequest | null> {
+export async function getMyPublicationRequests(accessToken: string, signal?: AbortSignal): Promise<PublicationRequestWithTrip[]> {
   const response = await fetch(endpoint('/users/me/trips'), {
     headers: { Accept: 'application/json', Authorization: `Bearer ${accessToken}` }, signal,
   });
-  const payload = await readResponse<{ requests: PublicationRequest[] }>(response);
-  return payload.requests.find((request) => request.tripId === tripId) ?? null;
+  const payload = await readResponse<{ requests: PublicationRequestWithTrip[] }>(response);
+  return payload.requests;
+}
+
+export async function getPublicationRequest(tripId: string, accessToken: string, signal?: AbortSignal): Promise<PublicationRequest | null> {
+  const requests = await getMyPublicationRequests(accessToken, signal);
+  return requests.find((request) => request.tripId === tripId) ?? null;
+}
+
+export function hasActivePublicationRequest(request: PublicationRequest): boolean {
+  return request.status === 'pending' || request.status === 'accepted';
 }
 
 export async function requestPublicationSeat(tripId: string, boardingStopId: string, accessToken: string): Promise<PublicationRequest> {

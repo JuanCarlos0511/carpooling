@@ -1,5 +1,5 @@
-import { View } from 'react-native';
+import { PassengerRequestedRoutes } from '@/features/mobility/components/PassengerRequestedRoutes';
 
 export default function PassengerRequestedRoutesScreen() {
-  return <View style={{ flex: 1 }} />;
+  return <PassengerRequestedRoutes />;
 }

@@ -9,11 +9,11 @@ import { type AppTheme, useAppTheme } from '@/constants/theme';
 import { useAuth } from '@/features/auth/context/AuthContext';
 import { AgreedTripCard } from '@/features/mobility/components/AgreedTripCard';
 import { PassengerAvatar } from '@/features/mobility/components/PassengerAvatar';
-import { PublicationAuthor } from '@/features/mobility/components/PublicationAuthor';
-import { PublicationSummaryCard } from '@/features/mobility/components/PublicationSummaryCard';
+import { PublicationFeedCard } from '@/features/mobility/components/PublicationFeedCard';
 import { passengerHomeData } from '@/features/mobility/data/passenger-home.data';
 import { useAgreedTrip } from '@/features/mobility/hooks/useAgreedTrip';
-import { getOpenPublications, publicationText, type PublicationTrip } from '@/features/mobility/services/publication.service';
+import { getMyPublicationRequests, getOpenPublications, hasActivePublicationRequest,
+  type PublicationTrip } from '@/features/mobility/services/publication.service';
 
 export function PassengerHome() {
   const theme = useAppTheme();
@@ -25,6 +25,7 @@ export function PassengerHome() {
   const [switching, setSwitching] = useState(false);
   const [error, setError] = useState<string>();
   const [publications, setPublications] = useState<PublicationTrip[]>([]);
+  const [requestedTripIds, setRequestedTripIds] = useState<Set<string>>(() => new Set());
   const [publicationsLoading, setPublicationsLoading] = useState(true);
   const [publicationsError, setPublicationsError] = useState<string>();
   const [reloadToken, setReloadToken] = useState(0);
@@ -36,8 +37,15 @@ export function PassengerHome() {
     const controller = new AbortController();
     setPublicationsLoading(true);
     setPublicationsError(undefined);
-    void getOpenPublications(controller.signal)
-      .then((trips) => setPublications(trips))
+    void Promise.all([
+      getOpenPublications(controller.signal),
+      accessToken ? getMyPublicationRequests(accessToken, controller.signal) : Promise.resolve([]),
+    ])
+      .then(([trips, requests]) => {
+        if (controller.signal.aborted) return;
+        setPublications(trips);
+        setRequestedTripIds(new Set(requests.filter(hasActivePublicationRequest).map((request) => request.tripId)));
+      })
       .catch(() => {
         if (!controller.signal.aborted) setPublicationsError('No fue posible cargar las publicaciones.');
       })
@@ -45,7 +53,7 @@ export function PassengerHome() {
         if (!controller.signal.aborted) setPublicationsLoading(false);
       });
     return () => controller.abort();
-  }, [reloadToken]));
+  }, [accessToken, reloadToken]));
 
   async function signOut() {
     setError(undefined);
@@ -120,7 +128,7 @@ export function PassengerHome() {
           <View style={styles.feedStatus}>
             <Text accessibilityRole="alert" style={styles.feedStatusText}>{agreedTripError}</Text>
             <Pressable accessibilityRole="button" onPress={retryAgreedTrip} style={styles.retryButton}>
-              <Text style={styles.detailsLinkText}>Reintentar</Text>
+              <Text style={styles.retryText}>Reintentar</Text>
             </Pressable>
           </View>
         ) : null}
@@ -131,23 +139,12 @@ export function PassengerHome() {
           <View style={styles.feedStatus}>
             <Text accessibilityRole="alert" style={styles.feedStatusText}>{publicationsError}</Text>
             <Pressable accessibilityRole="button" onPress={() => setReloadToken((value) => value + 1)} style={styles.retryButton}>
-              <Text style={styles.detailsLinkText}>Reintentar</Text>
+              <Text style={styles.retryText}>Reintentar</Text>
             </Pressable>
           </View>
         ) : publications.length === 0 ? (
           <View style={styles.feedStatus}><Text style={styles.feedStatusText}>Todavía no hay publicaciones abiertas con lugares disponibles.</Text></View>
-        ) : publications.map((trip) => (
-          <View key={trip.id} style={styles.feedCard}>
-            <View style={styles.publicationAuthor}><PublicationAuthor driver={trip.driver} /></View>
-            <Text style={styles.description}>{publicationText(trip)}</Text>
-            <PublicationSummaryCard trip={trip} />
-            <Pressable accessibilityRole="link" accessibilityLabel={`Ver detalles de la publicación hacia ${trip.route.destination.name}`}
-              onPress={() => router.push({ pathname: '/passenger/publicacion/[id]', params: { id: trip.id } })}
-              style={({ pressed }) => [styles.detailsLink, pressed && styles.detailsLinkPressed]}>
-              <Text style={styles.detailsLinkText}>Ver detalles</Text>
-            </Pressable>
-          </View>
-        ))}
+        ) : publications.map((trip) => <PublicationFeedCard key={trip.id} trip={trip} hasRequest={requestedTripIds.has(trip.id)} />)}
         <Text style={styles.bottomNote}>Viaja acompañado, llega mejor.</Text>
       </ScrollView>
     </SafeAreaView>
@@ -177,17 +174,11 @@ function makeStyles(theme: AppTheme) {
     eyebrow: { color: colors.accentStrong, fontSize: typography.size.label, fontWeight: typography.weight.bold, letterSpacing: typography.letterSpacing.label, marginBottom: spacing.xs },
     sectionTitle: { color: colors.textPrimary, fontSize: 21, fontWeight: typography.weight.bold, lineHeight: 27 },
     feedHeading: { marginTop: spacing.xl },
-    feedCard: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: borderRadius.lg,
-      padding: spacing.md, marginBottom: spacing.md },
-    publicationAuthor: { marginBottom: spacing.md },
     feedStatus: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: borderRadius.lg,
       padding: spacing.lg, alignItems: 'center', gap: spacing.sm },
     feedStatusText: { color: colors.textSecondary, fontSize: typography.size.body, lineHeight: 22, textAlign: 'center' },
     retryButton: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing.md },
-    description: { color: colors.textSecondary, fontSize: typography.size.body, lineHeight: 23, marginBottom: spacing.md },
-    detailsLink: { alignSelf: 'flex-end', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing.xs, marginTop: spacing.sm },
-    detailsLinkPressed: { opacity: 0.65 },
-    detailsLinkText: { color: colors.accentStrong, fontSize: typography.size.body, fontWeight: typography.weight.bold },
+    retryText: { color: colors.accentStrong, fontSize: typography.size.body, fontWeight: typography.weight.bold },
     bottomNote: { color: colors.textMuted, fontSize: typography.size.bodySmall, textAlign: 'center', marginTop: spacing.lg },
   });
 }
