@@ -199,12 +199,15 @@ export function PassengerPublicationDetails() {
           })}
         </View>
         {destination ? (
-          <View style={styles.destinationCard}>
-            <View style={styles.stopNumber}><Text style={styles.stopNumberText}>D</Text></View>
-            <View style={styles.stopText}><Text style={styles.stopName}>{destination.name}</Text>
-              <Text style={styles.stopKind}>Destino · No es punto de abordaje</Text></View>
-            <Text style={styles.stopTime}>{formatHour(destination.scheduledAt)}</Text>
-          </View>
+          <>
+            <View style={styles.destinationDivider} />
+            <View style={styles.destinationCard}>
+              <View style={styles.stopNumber}><Text style={styles.stopNumberText}>D</Text></View>
+              <View style={styles.stopText}><Text style={styles.stopName}>{destination.name}</Text>
+                <Text style={styles.stopKind}>Destino · No es punto de abordaje</Text></View>
+              <Text style={styles.stopTime}>{formatHour(destination.scheduledAt)}</Text>
+            </View>
+          </>
         ) : null}
         {requestNotice ? <View style={styles.requestNotice}>
           <Info size={18} color={theme.colors.accentStrong} />
@@ -255,8 +258,10 @@ function makeStyles(theme: AppTheme) {
     stopRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: 66, padding: spacing.md,
       backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, borderRadius: borderRadius.lg },
     stopRowSelected: { borderColor: colors.accentStrong, backgroundColor: colors.accentSoft },
+    destinationDivider: { height: 1, backgroundColor: colors.borderStrong,
+      marginHorizontal: spacing.md, marginTop: spacing.md, marginBottom: spacing.xs },
     destinationCard: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: 66, padding: spacing.md,
-      marginTop: spacing.sm, backgroundColor: colors.surface, borderColor: colors.border,
+      marginTop: spacing.xs, backgroundColor: colors.surface, borderColor: colors.border,
       borderWidth: 1, borderRadius: borderRadius.lg },
     stopNumber: { width: 26, height: 26, borderRadius: 13, backgroundColor: colors.accentSoft,
       alignItems: 'center', justifyContent: 'center' },
