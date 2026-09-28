@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { type AppTheme, useAppTheme } from '@/constants/theme';
 import { useAuth } from '@/features/auth/context/AuthContext';
 import { useAgreedTrip } from '@/features/mobility/hooks/useAgreedTrip';
-import { formatDeparture } from '@/features/mobility/services/publication.service';
+import { formatHour } from '@/features/mobility/services/publication.service';
 
 export function PassengerTripDetails() {
   const theme = useAppTheme();
@@ -55,7 +55,7 @@ export function PassengerTripDetails() {
           <View style={styles.row}>
             <Clock3 size={20} color={theme.colors.accentStrong} />
             <View style={styles.rowText}><Text style={styles.label}>Hora de encuentro</Text>
-              <Text style={styles.value}>{trip.boardingStop ? formatDeparture(trip.boardingStop.scheduledAt) : 'Confirma con el conductor'}</Text></View>
+              <Text style={styles.value}>{trip.boardingStop ? `${formatHour(trip.boardingStop.scheduledAt)} hrs` : 'Confirma con el conductor'}</Text></View>
           </View>
           <View style={styles.divider} />
           <View style={styles.row}>

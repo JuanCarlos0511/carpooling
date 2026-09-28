@@ -10,7 +10,7 @@ import { PublicationAuthor } from '@/features/mobility/components/PublicationAut
 import { PublicationSummaryCard } from '@/features/mobility/components/PublicationSummaryCard';
 import { RouteMapCard } from '@/features/mobility/components/RouteMapCard';
 import {
-  cancelPublicationRequest, changePublicationBoardingStop, formatDeparture, formatHour, getPublication,
+  cancelPublicationRequest, changePublicationBoardingStop, formatHour, getPublication,
   getPublicationRequest, passengerSeats, publicationText, requestPublicationSeat, tripWaypoints,
   type PublicationRequest, type PublicationTrip,
 } from '@/features/mobility/services/publication.service';
@@ -161,7 +161,7 @@ export function PassengerPublicationDetails() {
   const destination = trip.stops.find((stop) => stop.kind === 'destination');
   const requestStatus = currentRequest?.status ?? null;
   const activeRequest = requestStatus === 'pending' || requestStatus === 'accepted';
-  const tripEditable = ['open', 'closed'].includes(trip.status) && new Date(trip.departureAt).getTime() > clock;
+  const tripEditable = ['open', 'closed'].includes(trip.status);
   const canCreate = trip.status === 'open' && seats.available > 0 && boardingStops.length > 0
     && (!currentRequest || requestStatus === 'cancelled');
   const canChange = activeRequest && tripEditable;

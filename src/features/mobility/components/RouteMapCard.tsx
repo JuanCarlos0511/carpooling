@@ -36,7 +36,7 @@ export function RouteMapCard({ firstStopTime, waypoints }: Props) {
           <Navigation2 size={17} color={theme.colors.accentStrong} />
           <Text style={styles.title}>RUTA PLANEADA</Text>
         </View>
-        {firstStopTime ? <Text style={styles.departure}>Primera parada {firstStopTime} hrs</Text> : null}
+        {firstStopTime ? <Text style={styles.departure}>Hora de salida {firstStopTime} hrs</Text> : null}
       </View>
       <View style={styles.mapContainer}>
         <RouteMap waypoints={waypoints} routeGeometry={route?.geometry ?? null}

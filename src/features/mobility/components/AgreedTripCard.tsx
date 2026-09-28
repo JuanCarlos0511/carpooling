@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { type AppTheme, useAppTheme } from '@/constants/theme';
 import { PassengerAvatar } from '@/features/mobility/components/PassengerAvatar';
 import type { AgreedTrip } from '@/features/mobility/services/passenger-trip.service';
-import { formatDeparture } from '@/features/mobility/services/publication.service';
+import { formatHour } from '@/features/mobility/services/publication.service';
 
 export function AgreedTripCard({ agreedTrip, onDetails }: { agreedTrip: AgreedTrip; onDetails: () => void }) {
   const theme = useAppTheme();
@@ -39,7 +39,7 @@ export function AgreedTripCard({ agreedTrip, onDetails }: { agreedTrip: AgreedTr
           <MapPin size={19} color={theme.colors.accent} />
           <Text style={styles.meetingText}>Punto de encuentro: <Text style={styles.meetingStrong}>{agreedTrip.boardingStop?.name ?? 'Parada pública por confirmar'}</Text></Text>
         </View>
-        {agreedTrip.boardingStop ? <Text style={styles.departureText}>{formatDeparture(agreedTrip.boardingStop.scheduledAt)}</Text> : null}
+        {agreedTrip.boardingStop ? <Text style={styles.departureText}>Hora de salida {formatHour(agreedTrip.boardingStop.scheduledAt)} hrs</Text> : null}
         <Pressable accessibilityRole="link" accessibilityLabel="Ver detalles de la ruta activa"
           onPress={onDetails} style={({ pressed }) => [styles.tripDetailsLink, pressed && styles.tripDetailsLinkPressed]}>
           <Text style={styles.tripDetailsLinkText}>Ver detalles</Text>

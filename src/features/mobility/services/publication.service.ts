@@ -127,12 +127,6 @@ export async function cancelPublicationRequest(tripId: string, accessToken: stri
   return payload.request;
 }
 
-export function formatDeparture(iso: string): string {
-  return new Intl.DateTimeFormat('es-MX', {
-    timeZone: 'America/Mexico_City', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
-  }).format(new Date(iso));
-}
-
 export function formatHour(iso: string): string {
   return new Intl.DateTimeFormat('es-MX', {
     timeZone: 'America/Mexico_City', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
@@ -153,7 +147,7 @@ export function publicationText(trip: PublicationTrip): string {
     ? ` Paso por ${intermediateStops.map((stop) => stop.name).join(', ')}.`
     : '';
   const notes = trip.notes.trim();
-  return `Viaje hacia ${trip.route.destination.name} el ${formatDeparture(firstStopTime)}.${passBy}${notes ? ` ${notes}` : ''}`;
+  return `Viaje hacia ${trip.route.destination.name}. Hora de salida ${formatHour(firstStopTime)}.${passBy}${notes ? ` ${notes}` : ''}`;
 }
 
 export function passengerSeats(trip: PublicationTrip): { capacity: number; available: number; occupied: number } {

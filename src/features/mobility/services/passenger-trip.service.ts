@@ -25,11 +25,9 @@ export async function getAgreedTrip(token: string, signal?: AbortSignal): Promis
   });
   if (!response.ok) throw new Error('No fue posible cargar tu viaje acordado.');
   const payload = await response.json() as { requests: PassengerRequest[] };
-  const now = Date.now();
   const request = payload.requests
     .filter((item) => item.status === 'accepted'
-      && ['open', 'closed', 'in_progress'].includes(item.trip.status)
-      && (item.trip.status === 'in_progress' || new Date(item.trip.arrivalAt).getTime() > now))
+      && ['open', 'closed', 'in_progress'].includes(item.trip.status))
     .sort((left, right) => new Date(left.trip.departureAt).getTime() - new Date(right.trip.departureAt).getTime())[0];
   if (!request) return null;
   const boardingStop = request.trip.stops.find((stop) => stop.id === request.boardingStopId);
